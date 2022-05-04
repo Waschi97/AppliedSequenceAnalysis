@@ -1,0 +1,26 @@
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 1 (use --cores to define parallelism)
+Rules claiming more threads will be scaled down.
+Job stats:
+job        count    min threads    max threads
+-------  -------  -------------  -------------
+all            1              1              1
+convert        1              1              1
+index          1              1              1
+sort           1              1              1
+stats          1              1              1
+total          5              1              1
+
+Select jobs to execute...
+
+[Fri Apr 22 15:11:38 2022]
+rule convert:
+    input: /home/togepitsch/Development/Applied_Sequence_Analysis/Task1/sam_tiny/ERR024607_tiny.sam, /home/togepitsch/Development/Applied_Sequence_Analysis/Task1/sam_tiny/ERR024608_tiny.sam, /home/togepitsch/Development/Applied_Sequence_Analysis/Task1/sam_tiny/ERR024606_tiny.sam, /home/togepitsch/Development/Applied_Sequence_Analysis/Task1/sam_tiny/ERR024605_tiny.sam, /home/togepitsch/Development/Applied_Sequence_Analysis/Task1/sam_tiny/ERR024609_tiny.sam, /home/togepitsch/Development/Applied_Sequence_Analysis/Task1/sam_tiny/ERR024604_tiny.sam
+    output: /home/togepitsch/Development/Applied_Sequence_Analysis/Task1/bam/ERR024607_tiny.bam, /home/togepitsch/Development/Applied_Sequence_Analysis/Task1/bam/ERR024608_tiny.bam, /home/togepitsch/Development/Applied_Sequence_Analysis/Task1/bam/ERR024606_tiny.bam, /home/togepitsch/Development/Applied_Sequence_Analysis/Task1/bam/ERR024605_tiny.bam, /home/togepitsch/Development/Applied_Sequence_Analysis/Task1/bam/ERR024609_tiny.bam, /home/togepitsch/Development/Applied_Sequence_Analysis/Task1/bam/ERR024604_tiny.bam
+    jobid: 4
+    resources: tmpdir=/tmp
+
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: .snakemake/log/2022-04-22T151137.850922.snakemake.log

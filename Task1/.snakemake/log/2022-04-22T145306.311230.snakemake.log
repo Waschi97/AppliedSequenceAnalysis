@@ -1,0 +1,3 @@
+TypeError in line 6 of /home/togepitsch/Development/Applied_Sequence_Analysis/Task1/Snakefile:
+can only concatenate str (not "list") to str
+  File "/home/togepitsch/Development/Applied_Sequence_Analysis/Task1/Snakefile", line 6, in <module>

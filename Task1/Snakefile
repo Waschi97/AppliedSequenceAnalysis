@@ -1,0 +1,38 @@
+PATH = "/home/togepitsch/Development/Applied_Sequence_Analysis/Task1/sam_tiny"
+IDS, = glob_wildcards(PATH + "/{id}.sam")
+
+rule all:
+    input:
+        expand(os.getcwd() + "/stats/{id}.txt", id=IDS)
+
+rule stats:
+    input:
+        os.getcwd() + "/bam_sorted/{id}.bam"
+    output:
+        os.getcwd() + "/stats/{id}.txt"
+    shell:
+        "samtools idxstats {input} > {output}"
+
+rule index:
+    input:
+        os.getcwd() + "/bam_sorted/{id}.bam"
+    output:
+        os.getcwd() + "/bam_sorted/{id}.bam.bai"
+    shell:
+        "samtools index {input}"
+
+rule sort:
+    input:
+        os.getcwd() + "/bam/{id}.bam"
+    output:
+        os.getcwd() + "/bam_sorted/{id}.bam"
+    shell:
+        "samtools sort -o {output} {input}"
+
+rule convert:
+    input:
+        PATH + "/{id}.sam"
+    output:
+        os.getcwd() + "/bam/{id}.bam"
+    shell:
+        "samtools view -b -o {output} {input}"

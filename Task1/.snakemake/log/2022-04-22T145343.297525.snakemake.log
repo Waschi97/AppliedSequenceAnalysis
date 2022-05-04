@@ -1,0 +1,6 @@
+Building DAG of jobs...
+MissingInputException in line 4 of /home/togepitsch/Development/Applied_Sequence_Analysis/Task1/Snakefile:
+Missing input files for rule convert:
+    output: /home/togepitsch/Development/Applied_Sequence_Analysis/Task1/bam/['ERR024607_tiny', 'ERR024608_tiny', 'ERR024606_tiny', 'ERR024605_tiny', 'ERR024609_tiny', 'ERR024604_tiny'].bam
+    affected files:
+        /home/togepitsch/Development/Applied_Sequence_Analysis/Task1/sam_tiny/['ERR024607_tiny', 'ERR024608_tiny', 'ERR024606_tiny', 'ERR024605_tiny', 'ERR024609_tiny', 'ERR024604_tiny'].sam

@@ -1,0 +1,43 @@
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 1 (use --cores to define parallelism)
+Rules claiming more threads will be scaled down.
+Job stats:
+job        count    min threads    max threads
+-------  -------  -------------  -------------
+all            1              1              1
+convert        2              1              1
+sort           5              1              1
+stats          6              1              1
+total         14              1              1
+
+Select jobs to execute...
+
+[Fri Apr 22 15:25:43 2022]
+rule sort:
+    input: /home/togepitsch/Development/Applied_Sequence_Analysis/Task1/bam/ERR024605_tiny.bam
+    output: /home/togepitsch/Development/Applied_Sequence_Analysis/Task1/bam_sorted/ERR024605_tiny.bam
+    jobid: 11
+    wildcards: id=ERR024605_tiny
+    resources: tmpdir=/tmp
+
+[Fri Apr 22 15:25:44 2022]
+Finished job 11.
+1 of 14 steps (7%) done
+Select jobs to execute...
+
+[Fri Apr 22 15:25:44 2022]
+rule stats:
+    input: /home/togepitsch/Development/Applied_Sequence_Analysis/Task1/bam_sorted/ERR024606_tiny.bam
+    output: /home/togepitsch/Development/Applied_Sequence_Analysis/Task1/stats/ERR024606_tiny.txt
+    jobid: 7
+    wildcards: id=ERR024606_tiny
+    resources: tmpdir=/tmp
+
+Waiting at most 5 seconds for missing files.
+MissingOutputException in line 8 of /home/togepitsch/Development/Applied_Sequence_Analysis/Task1/Snakefile:
+Job Missing files after 5 seconds. This might be due to filesystem latency. If that is the case, consider to increase the wait time with --latency-wait:
+/home/togepitsch/Development/Applied_Sequence_Analysis/Task1/stats/ERR024606_tiny.txt completed successfully, but some output files are missing. 7
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: .snakemake/log/2022-04-22T152543.114923.snakemake.log
