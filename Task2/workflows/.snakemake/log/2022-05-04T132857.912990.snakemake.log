@@ -1,0 +1,4 @@
+Building DAG of jobs...
+WorkflowError:
+Failed to open source file C:\Development\AppliedSequenceAnalysis\Task2\workflows\env\samtools_bowtie_env.yml
+FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Development\\AppliedSequenceAnalysis\\Task2\\workflows\\env\\samtools_bowtie_env.yml'

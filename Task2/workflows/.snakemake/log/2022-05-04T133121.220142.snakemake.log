@@ -1,0 +1,13 @@
+Building DAG of jobs...
+Creating conda environment envs\samtools_bowtie_env.yml...
+Downloading and installing remote packages.
+CreateCondaEnvironmentException:
+Could not create conda environment from C:\Development\AppliedSequenceAnalysis\Task2\workflows\envs\samtools_bowtie_env.yml:
+Command:
+mamba env create --quiet --file "C:\Development\AppliedSequenceAnalysis\Task2\workflows\.snakemake\conda\800acfd194f58c8c4ab7c08244dea6a3.yaml" --prefix "C:\Development\AppliedSequenceAnalysis\Task2\workflows\.snakemake\conda\800acfd194f58c8c4ab7c08244dea6a3"
+Output:
+Encountered problems while solving.
+Problem: nothing provides requested samtools 1.15**
+Problem: nothing provides requested bowtie2 2.4**
+
+

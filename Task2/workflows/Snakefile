@@ -1,0 +1,48 @@
+from pathlib import Path
+
+PATH = Path("C:\Development\AppliedSequenceAnalysis\Data\sam\sam_tiny")
+IDS, = glob_wildcards(PATH / "{id}.sam")
+
+rule all:
+    input:
+        expand(Path.cwd() / "stats" / "{id}.txt", id=IDS)
+
+rule stats:
+    input:
+        Path.cwd() / "bam_sorted" / "{id}.bam"
+    output:
+        Path.cwd() / "stats" / "{id}.txt"
+    conda:
+        Path.cwd() / "envs" / "samtools_bowtie_env.yaml"
+    shell:
+        "samtools idxstats {input} > {output}"
+
+rule index:
+    input:
+        Path.cwd() / "bam_sorted" / "{id}.bam"
+    output:
+        Path.cwd() / "bam_sorted" / "{id}.bam.bai"
+    conda:
+        Path.cwd() / "envs" / "samtools_bowtie_env.yaml"
+    shell:
+        "samtools index {input}"
+
+rule sort:
+    input:
+        Path.cwd() / "bam" / "{id}.bam"
+    output:
+        Path.cwd() / "bam_sorted" / "{id}.bam"
+    conda:
+        Path.cwd() / "envs" / "samtools_bowtie_env.yaml"
+    shell:
+        "samtools sort -o {output} {input}"
+
+rule convert:
+    input:
+        PATH / "{id}.sam"
+    output:
+        Path.cwd() / "bam" / "{id}.bam"
+    conda:
+        Path.cwd() / "envs" / "samtools_bowtie_env.yaml"
+    shell:
+        "samtools view -b -o {output} {input}"
