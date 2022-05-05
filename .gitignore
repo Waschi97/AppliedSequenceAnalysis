@@ -7,3 +7,6 @@
 *.sam
 *.txt
 *.snakemake
+*.stats
+*.stats_aug
+Data/
