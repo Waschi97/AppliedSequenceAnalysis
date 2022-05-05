@@ -1,27 +1,35 @@
 from pathlib import Path
+import pandas as pd
 
-PATH = Path("C:\Development\AppliedSequenceAnalysis\Data\sam\sam_tiny")
-IDS, = glob_wildcards(PATH / "{id}.sam")
+# TODO: read from config
+sample_files = Path("/home/mi/tomw97/Schreibtisch/Development/AppliedSequenceAnalysis/Data/samples.tsv")
+reference = Path("/storage/mi/tomw97/Data/AppliedSeqAn/reference/reference.FASTA")
+
+# TODO: don't store temp files in cwd() but in /storage/ or ../results
+
+samples = pd.read_csv(sample_files, index_col ="sample", sep='\t')
+
 
 rule all:
     input:
-        expand(Path.cwd() / "stats" / "{id}.txt", id=IDS)
+        expand(Path.cwd() / "stats" / "{sample}.stats", sample=list(samples.index))
 
 rule stats:
     input:
-        Path.cwd() / "bam_sorted" / "{id}.bam"
+        data = Path.cwd() / "bam_sorted" / "{sample}.bam",
+        idx = Path.cwd() / "bam_sorted" / "{sample}.bam.bai"
     output:
-        Path.cwd() / "stats" / "{id}.txt"
+        Path.cwd() / "stats" / "{sample}.stats"
     conda:
         Path.cwd() / "envs" / "samtools_bowtie_env.yaml"
     shell:
-        "samtools idxstats {input} > {output}"
+        "samtools idxstats {input.data} > {output}"
 
 rule index:
     input:
-        Path.cwd() / "bam_sorted" / "{id}.bam"
+        Path.cwd() / "bam_sorted" / "{sample}.bam"
     output:
-        Path.cwd() / "bam_sorted" / "{id}.bam.bai"
+        Path.cwd() / "bam_sorted" / "{sample}.bam.bai"
     conda:
         Path.cwd() / "envs" / "samtools_bowtie_env.yaml"
     shell:
@@ -29,9 +37,9 @@ rule index:
 
 rule sort:
     input:
-        Path.cwd() / "bam" / "{id}.bam"
+        Path.cwd() / "bam" / "{sample}.bam"
     output:
-        Path.cwd() / "bam_sorted" / "{id}.bam"
+        Path.cwd() / "bam_sorted" / "{sample}.bam"
     conda:
         Path.cwd() / "envs" / "samtools_bowtie_env.yaml"
     shell:
@@ -39,10 +47,48 @@ rule sort:
 
 rule convert:
     input:
-        PATH / "{id}.sam"
+        Path.cwd() / "sam" / "{sample}.sam"
     output:
-        Path.cwd() / "bam" / "{id}.bam"
+        Path.cwd() / "bam" / "{sample}.bam"
     conda:
         Path.cwd() / "envs" / "samtools_bowtie_env.yaml"
     shell:
         "samtools view -b -o {output} {input}"
+
+rule mapping:
+    input:
+        fq1 = lambda wildcards: samples.at[wildcards.sample, "fq1"],
+        fq2 = lambda wildcards: samples.at[wildcards.sample, "fq2"],
+        idx = multiext(
+            str(Path(f"{reference}").parent),
+            ".1.bt2",
+            ".2.bt2",
+            ".3.bt2",
+            ".4.bt2",
+            ".rev.1.bt2",
+            ".rev.2.bt2",
+        )
+    output:
+        Path.cwd() / "sam" / "{sample}.sam"
+    conda:
+        Path.cwd() / "envs" / "samtools_bowtie_env.yaml"
+    shell:
+        "bowtie2 -x {input.idx} -1 {input.fq1} -2 {input.fq2}"
+
+rule genome_index:
+    input:
+        reference
+    output:
+        idx=multiext(
+            str(Path(f"{reference}").parent),
+            ".1.bt2",
+            ".2.bt2",
+            ".3.bt2",
+            ".4.bt2",
+            ".rev.1.bt2",
+            ".rev.2.bt2",
+        )
+    conda:
+        Path.cwd() / "envs" / "samtools_bowtie_env.yaml"
+    shell:
+        "bowtie2-build {reference}"
