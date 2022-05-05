@@ -18,7 +18,7 @@ rule mapping:
     conda:
         Path.cwd() / "envs" / "samtools_bowtie_env.yaml"
     shell:
-        "bowtie2 -x {ref_base} -1 {input.fq1} -2 {input.fq2} -p {threads} -S {output}"
+        "bowtie2 -x {ref_base} -1 {input.fq1} -2 {input.fq2} -p {threads} -X {param_max_frag_len} -I {param_min_frag_len} -S {output}"
 
 rule genome_index:
     input:

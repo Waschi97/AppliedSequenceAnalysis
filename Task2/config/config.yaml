@@ -6,3 +6,6 @@ samples: "/home/mi/tomw97/Schreibtisch/Development/AppliedSequenceAnalysis/Data/
 results: "/home/mi/tomw97/Schreibtisch/Development/AppliedSequenceAnalysis/Task2/results"
 # script that calculates the rpk from a stat file
 rpk_script: "/home/mi/tomw97/Schreibtisch/Development/AppliedSequenceAnalysis/Task2/workflows/scripts/calc_rpk.py"
+# bowtie2 settings
+max_frag_length: 500  # param: -X {value}
+min_frag_length: 0    # param: -I {value}

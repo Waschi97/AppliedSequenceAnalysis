@@ -9,6 +9,8 @@ reference = Path(config["reference"])
 ref_base = str(reference.parent / reference.stem)
 result_dir = Path(config["results"])
 rpk_script = Path(config["rpk_script"])
+param_min_frag_len = config["min_frag_length"]
+param_max_frag_len = config["max_frag_length"]
 
 # read file containing sample paths
 samples = pd.read_csv(sample_files, index_col ="sample", sep='\t')
