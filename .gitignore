@@ -3,6 +3,7 @@
 *.tar.gz
 *.gz
 *.bam
+*.bai
 *.sam
 *.txt
 *.snakemake
