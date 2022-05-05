@@ -1,18 +1,17 @@
 from pathlib import Path
 import pandas as pd
 
-# TODO: read from config
-sample_files = Path("/home/mi/tomw97/Schreibtisch/Development/AppliedSequenceAnalysis/Data/samples.tsv")
-reference = Path("/storage/mi/tomw97/Data/AppliedSeqAn/reference/reference.FASTA")
-ref_stem = str(reference.parent / reference.stem)
-result_dir = Path("/home/mi/tomw97/Schreibtisch/Development/AppliedSequenceAnalysis/Task2/results")
+configfile: Path.cwd() / ".." / "config" / "config.yaml"
 
-rpk_script = Path("/home/mi/tomw97/Schreibtisch/Development/AppliedSequenceAnalysis/Task2/workflows/scripts/calc_rpk.py")
+# read config settings
+sample_files = Path(config["samples"])
+reference = Path(config["reference"])
+ref_base = str(reference.parent / reference.stem)
+result_dir = Path(config["results"])
+rpk_script = Path(config["rpk_script"])
 
-# TODO: don't store temp files in cwd() but in /storage/ or ../results
-
+# read file containing sample paths
 samples = pd.read_csv(sample_files, index_col ="sample", sep='\t')
-
 
 rule all:
     input:
@@ -26,93 +25,6 @@ rule aug_stats:
     shell:
         "python3 {rpk_script} {input}"
 
-rule stats:
-    input:
-        data = result_dir / "bam_sorted" / "{sample}.bam",
-        idx = result_dir / "bam_sorted" / "{sample}.bam.bai"
-    output:
-        result_dir / "stats" / "{sample}.stats"
-    threads:
-        4
-    conda:
-        Path.cwd() / "envs" / "samtools_bowtie_env.yaml"
-    shell:
-        "samtools idxstats -@ {threads} {input.data} > {output}"
+include: Path.cwd() / "rules" / "samtools.smk"
 
-rule index:
-    input:
-        result_dir / "bam_sorted" / "{sample}.bam"
-    output:
-        result_dir / "bam_sorted" / "{sample}.bam.bai"
-    threads:
-        4
-    conda:
-        Path.cwd() / "envs" / "samtools_bowtie_env.yaml"
-    shell:
-        "samtools index -@ {threads} {input}"
-
-rule sort:
-    input:
-        result_dir / "bam" / "{sample}.bam"
-    output:
-        result_dir / "bam_sorted" / "{sample}.bam"
-    threads:
-        4
-    conda:
-        Path.cwd() / "envs" / "samtools_bowtie_env.yaml"
-    shell:
-        "samtools sort -@ {threads} -o {output} {input}"
-
-rule convert:
-    input:
-        result_dir / "sam" / "{sample}.sam"
-    output:
-        result_dir / "bam" / "{sample}.bam"
-    threads:
-        4
-    conda:
-        Path.cwd() / "envs" / "samtools_bowtie_env.yaml"
-    shell:
-        "samtools view -@ {threads} -b -o {output} {input}"
-
-rule mapping:
-    input:
-        fq1 = lambda wildcards: samples.at[wildcards.sample, "fq1"],
-        fq2 = lambda wildcards: samples.at[wildcards.sample, "fq2"],
-        idx = multiext(
-            ref_stem,
-            ".1.bt2",
-            ".2.bt2",
-            ".3.bt2",
-            ".4.bt2",
-            ".rev.1.bt2",
-            ".rev.2.bt2",
-        ),
-    output:
-        result_dir / "sam" / "{sample}.sam"
-    threads:
-        4
-    conda:
-        Path.cwd() / "envs" / "samtools_bowtie_env.yaml"
-    shell:
-        "bowtie2 -x {ref_stem} -1 {input.fq1} -2 {input.fq2} -p {threads} -S {output}"
-
-rule genome_index:
-    input:
-        reference
-    output:
-        idx=multiext(
-            ref_stem,
-            ".1.bt2",
-            ".2.bt2",
-            ".3.bt2",
-            ".4.bt2",
-            ".rev.1.bt2",
-            ".rev.2.bt2",
-        ),
-    threads:
-        4
-    conda:
-        Path.cwd() / "envs" / "samtools_bowtie_env.yaml"
-    shell:
-        "bowtie2-build {reference} {ref_stem} -p {threads}"
+include: Path.cwd() / "rules" / "bowtie.smk"
