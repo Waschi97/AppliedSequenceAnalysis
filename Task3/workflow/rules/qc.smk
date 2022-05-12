@@ -10,7 +10,7 @@ rule multiqc:
     params:
         dir = result_dir / "qc_files"
     conda:
-        Path.cwd() / "envs" / "qc_tools_env.yaml"
+        Path("..") / "envs" / "qc_tools_env.yaml"
     shell:
         "multiqc {params.dir} -n {output}"
 
@@ -33,7 +33,7 @@ rule mapping_stats:
     params:
         dir = lambda wildcards: result_dir / "qc_files" / "qualimap" / f"{wildcards.sample}"
     conda:
-        Path.cwd() / "envs" / "qc_tools_env.yaml"
+        Path("..") / "envs" / "qc_tools_env.yaml"
     shell:
         "qualimap bamqc -bam {input} -outdir {params.dir}"
 
@@ -53,7 +53,7 @@ rule trimm:
     threads:
         4
     conda:
-        Path.cwd() / "envs" / "qc_tools_env.yaml"
+        Path("..") / "envs" / "qc_tools_env.yaml"
     shell:
         "mkdir -p {params.output_dir} && trimmomatic PE -threads {threads} {input.fq1} {input.fq2} -baseout {params.base_name} ILLUMINACLIP:{adapter_seqs}:2:30:10"
 
@@ -65,8 +65,6 @@ rule fastqc_raw:
         zip = result_dir / "qc_files" / "qc_raw" / "{sample}_{i}_fastqc.zip"
         # the suffix _fastqc.zip is necessary for multiqc to find the file. If not using multiqc, you are free to choose an arbitrary filename
     params: "--quiet"
-    log:
-        result_dir / "logs" / "fastqc_raw" / "{sample}_{i}.log"
     threads: 1
     wrapper:
         "v1.4.0/bio/fastqc"

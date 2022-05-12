@@ -7,7 +7,7 @@ rule stats:
     threads:
         4
     conda:
-        Path.cwd() / "envs" / "samtools_bowtie_env.yaml"
+        Path("..") / "envs" / "samtools_bowtie_env.yaml"
     shell:
         "samtools idxstats -@ {threads} {input.data} > {output}"
 
@@ -19,7 +19,7 @@ rule index:
     threads:
         4
     conda:
-        Path.cwd() / "envs" / "samtools_bowtie_env.yaml"
+        Path("..") / "envs" / "samtools_bowtie_env.yaml"
     shell:
         "samtools index -@ {threads} {input}"
 
@@ -31,7 +31,7 @@ rule sort:
     threads:
         4
     conda:
-        Path.cwd() / "envs" / "samtools_bowtie_env.yaml"
+        Path("..") / "envs" / "samtools_bowtie_env.yaml"
     shell:
         "samtools sort -@ {threads} -o {output} {input}"
 
@@ -43,6 +43,6 @@ rule convert:
     threads:
         4
     conda:
-        Path.cwd() / "envs" / "samtools_bowtie_env.yaml"
+        Path("..") / "envs" / "samtools_bowtie_env.yaml"
     shell:
         "samtools view -@ {threads} -b -o {output} {input}"

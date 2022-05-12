@@ -1,7 +1,7 @@
 from pathlib import Path
 import pandas as pd
 
-configfile: Path.cwd() / ".." / "config" / "config.yaml"
+configfile: Path("config") / "config.yaml"
 
 # read config settings
 sample_files = Path(config["samples"])
@@ -13,7 +13,7 @@ param_min_frag_len = config["min_frag_length"]
 param_max_frag_len = config["max_frag_length"]
 
 # python script for rpk calculation
-rpk_script = Path.cwd() / "scripts" / "calc_rpk.py"
+rpk_script = Path("scripts") / "calc_rpk.py"
 
 # read file containing sample paths
 samples = pd.read_csv(sample_files, index_col ="sample", sep='\t')
@@ -31,8 +31,8 @@ rule aug_stats:
     shell:
         "python3 {rpk_script} {input}"
 
-include: Path.cwd() / "rules" / "samtools.smk"
+include: Path("workflow") / "rules" / "samtools.smk"
 
-include: Path.cwd() / "rules" / "bowtie.smk"
+include: Path("workflow") / "rules" / "bowtie.smk"
 
-include: Path.cwd() / "rules" / "qc.smk"
+include: Path("workflow") / "rules" / "qc.smk"
