@@ -1,0 +1,11 @@
+# reference file for mapping
+reference: "/storage/mi/tomw97/Data/AppliedSeqAn/reference/reference.FASTA"
+# file containg samples with paired end reads (with given formating)
+samples: "/home/mi/tomw97/Schreibtisch/Development/AppliedSequenceAnalysis/Data/samples.tsv"
+# folder to save results to
+results: "/home/mi/tomw97/Schreibtisch/Development/AppliedSequenceAnalysis/Task3/results"
+# fasta file containing adapter seqs
+adapter: "../resources/sequencing_adapters.fa" # https://gist.github.com/photocyte/3edd9401d0b13476e60f8b104c2575f8
+# bowtie2 settings
+max_frag_length: 500  # param: -X {value}
+min_frag_length: 0    # param: -I {value}

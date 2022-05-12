@@ -11,3 +11,5 @@
 *.snakemake
 Data/
 .snakemake/
+*.log
+*.html
