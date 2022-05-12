@@ -6,14 +6,11 @@ configfile: Path("config") / "config.yaml"
 # read config settings
 sample_files = Path(config["samples"])
 reference = Path(config["reference"])
-ref_base = str(reference.parent / reference.stem)
 result_dir = Path(config["results"])
 adapter_seqs = Path(config["adapter"])
-param_min_frag_len = config["min_frag_length"]
-param_max_frag_len = config["max_frag_length"]
 
 # python script for rpk calculation
-rpk_script = Path("scripts") / "calc_rpk.py"
+rpk_script = str(Path("scripts") / "calc_rpk.py")
 
 # read file containing sample paths
 samples = pd.read_csv(sample_files, index_col ="sample", sep='\t')
@@ -28,11 +25,11 @@ rule aug_stats:
         result_dir / "stats" / "{sample}.stats"
     output:
         result_dir / "stats" / "{sample}.stats_aug"
-    shell:
-        "python3 {rpk_script} {input}"
+    script:
+        rpk_script
 
-include: Path("workflow") / "rules" / "samtools.smk"
+include: Path("rules") / "samtools.smk"
 
-include: Path("workflow") / "rules" / "bowtie.smk"
+include: Path("rules") / "bowtie.smk"
 
-include: Path("workflow") / "rules" / "qc.smk"
+include: Path("rules") / "qc.smk"

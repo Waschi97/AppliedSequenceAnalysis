@@ -3,7 +3,7 @@ rule mapping:
         fq1 = lambda wildcards: samples.at[wildcards.sample, "fq1"],
         fq2 = lambda wildcards: samples.at[wildcards.sample, "fq2"],
         idx = multiext(
-            ref_base,
+            str(result_dir / "ref_idx" / "reference"),
             ".1.bt2",
             ".2.bt2",
             ".3.bt2",
@@ -13,19 +13,25 @@ rule mapping:
         ),
     output:
         result_dir / "sam" / "{sample}.sam"
+    log:
+        result_dir / "log" / "bowtie2_mapping" / "{sample}.log"
     threads:
         4
+    params:
+        min_frag_len = config["min_frag_length"],
+        max_frag_len = config["max_frag_length"],
+        idx_base = result_dir / "ref_idx" / "reference"
     conda:
         Path("..") / "envs" / "samtools_bowtie_env.yaml"
     shell:
-        "bowtie2 -x {ref_base} -1 {input.fq1} -2 {input.fq2} -p {threads} -X {param_max_frag_len} -I {param_min_frag_len} -S {output}"
+        "bowtie2 -x {params.idx_base} -1 {input.fq1} -2 {input.fq2} -p {threads} -X {params.max_frag_len} -I {params.min_frag_len} -S {output} 2> {log}"
 
 rule genome_index:
     input:
         reference
     output:
         idx=multiext(
-            ref_base,
+            str(result_dir / "ref_idx" / "reference"),
             ".1.bt2",
             ".2.bt2",
             ".3.bt2",
@@ -33,9 +39,13 @@ rule genome_index:
             ".rev.1.bt2",
             ".rev.2.bt2",
         ),
+    log:
+        result_dir / "log" / "bowtie2_indexing" / "indexing.log"
     threads:
         4
+    params:
+        idx_base = result_dir / "ref_idx" / "reference"
     conda:
         Path("..") / "envs" / "samtools_bowtie_env.yaml"
     shell:
-        "bowtie2-build {reference} {ref_base} -p {threads}"
+        "bowtie2-build {reference} {params.idx_base} -p {threads} 2> {log}"
