@@ -13,3 +13,8 @@ Data/
 .snakemake/
 *.log
 *.html
+*.png
+*.css
+*.js
+*.json
+*.gif
