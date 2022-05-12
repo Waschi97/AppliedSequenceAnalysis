@@ -3,7 +3,8 @@ rule multiqc:
         raw_html = expand(result_dir / "qc_files" / "qc_raw" / "{sample}_{i}.html", i=[1,2], sample=list(samples.index)),
         raw_zip = expand(result_dir / "qc_files" / "qc_raw" / "{sample}_{i}_fastqc.zip", i=[1,2], sample=list(samples.index)),
         trimm_html = expand(result_dir / "qc_files" / "qc_trimmed" / "{sample}_{j}{k}.html", k=['P','U'], j=[1,2], sample=list(samples.index)),
-        trimm_zip = expand(result_dir / "qc_files" / "qc_trimmed" / "{sample}_{j}{k}_fastqc.zip", k=['P','U'], j=[1,2], sample=list(samples.index))
+        trimm_zip = expand(result_dir / "qc_files" / "qc_trimmed" / "{sample}_{j}{k}_fastqc.zip", k=['P','U'], j=[1,2], sample=list(samples.index)),
+        mapping_html = expand(result_dir / "qc_files" / "qualimap" / "{sample}" / "qualimapReport.html", sample=list(samples.index))
     output:
         result_dir / "qc_files" / "final_qc_report.html"
     params:
@@ -20,11 +21,21 @@ rule fastqc_trimm:
         html = result_dir / "qc_files" / "qc_trimmed" / "{sample}_{j}{k}.html",
         zip = result_dir / "qc_files" / "qc_trimmed" / "{sample}_{j}{k}_fastqc.zip"
     params: "--quiet"
-    log:
-        Path.cwd() / "logs" / "fastqc_raw" / "{sample}_{j}{k}.log"
     threads: 1
     wrapper:
         "v1.4.0/bio/fastqc"
+
+rule mapping_stats:
+    input:
+        result_dir / "bam_sorted" / "{sample}.bam"
+    output:
+        result_dir / "qc_files" / "qualimap" / "{sample}" / "qualimapReport.html"
+    params:
+        dir = lambda wildcards: result_dir / "qc_files" / "qualimap" / f"{wildcards.sample}"
+    conda:
+        Path.cwd() / "envs" / "qc_tools_env.yaml"
+    shell:
+        "qualimap bamqc -bam {input} -outdir {params.dir}"
 
 rule trimm:
     input:
