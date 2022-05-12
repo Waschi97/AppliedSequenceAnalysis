@@ -7,12 +7,14 @@ rule multiqc:
         mapping_html = expand(result_dir / "qc_files" / "qualimap" / "{sample}" / "qualimapReport.html", sample=list(samples.index))
     output:
         result_dir / "qc_files" / "final_qc_report.html"
+    log:
+        result_dir / "log" / "multiqc.log"
     params:
         dir = result_dir / "qc_files"
     conda:
         Path("..") / "envs" / "qc_tools_env.yaml"
     shell:
-        "multiqc {params.dir} -n {output}"
+        "multiqc {params.dir} -n {output} 2> {log}"
 
 rule fastqc_trimm:
     input:
@@ -30,12 +32,14 @@ rule mapping_stats:
         result_dir / "bam_sorted" / "{sample}.bam"
     output:
         result_dir / "qc_files" / "qualimap" / "{sample}" / "qualimapReport.html"
+    log:
+        result_dir / "log" / "qualimap" / "{sample}.log"
     params:
         dir = lambda wildcards: result_dir / "qc_files" / "qualimap" / f"{wildcards.sample}"
     conda:
         Path("..") / "envs" / "qc_tools_env.yaml"
     shell:
-        "qualimap bamqc -bam {input} -outdir {params.dir}"
+        "qualimap bamqc -bam {input} -outdir {params.dir} 2> {log}"
 
 rule trimm:
     input:
@@ -46,6 +50,8 @@ rule trimm:
         u1 = result_dir / "trimmed" / "{sample}_1U.fq.gz",
         p2 = result_dir / "trimmed" / "{sample}_2P.fq.gz",
         u2 = result_dir / "trimmed" / "{sample}_2U.fq.gz"
+    log:
+        result_dir / "log" / "trimmomatic" / "{sample}.log"
     params:
         output_dir = result_dir / "trimmed",
         base_name = lambda wildcards: result_dir / "trimmed" / f"{wildcards.sample}.fq.gz"
@@ -55,7 +61,7 @@ rule trimm:
     conda:
         Path("..") / "envs" / "qc_tools_env.yaml"
     shell:
-        "mkdir -p {params.output_dir} && trimmomatic PE -threads {threads} {input.fq1} {input.fq2} -baseout {params.base_name} ILLUMINACLIP:{adapter_seqs}:2:30:10"
+        "mkdir -p {params.output_dir} && trimmomatic PE -threads {threads} {input.fq1} {input.fq2} -baseout {params.base_name} ILLUMINACLIP:{adapter_seqs}:2:30:10 2> {log}"
 
 rule fastqc_raw:
     input:

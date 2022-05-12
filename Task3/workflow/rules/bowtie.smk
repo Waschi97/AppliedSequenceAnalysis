@@ -40,7 +40,7 @@ rule genome_index:
             ".rev.2.bt2",
         ),
     log:
-        result_dir / "log" / "bowtie2_indexing" / "indexing.log"
+        result_dir / "log" / "bowtie2_indexing.log"
     threads:
         4
     params:
