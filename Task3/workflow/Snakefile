@@ -52,8 +52,8 @@ rule aug_stats:
     script:
         rpk_script
 
+include: Path("rules") / "qc.smk"
+
 include: Path("rules") / "samtools.smk"
 
 include: Path("rules") / "bowtie.smk"
-
-include: Path("rules") / "qc.smk"
