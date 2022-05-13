@@ -3,6 +3,29 @@ import pandas as pd
 
 configfile: Path("config") / "config.yaml"
 
+def determine_qualimap_exe():
+    if config['skip_qualimap']:
+        return []
+    return expand(result_dir / "qc_files" / "qualimap" / "{sample}" / "qualimapReport.html", sample=list(samples.index))
+
+def determine_fastqc_exe():
+    if config['skip_fastQC']:
+        return []
+    
+    expected_files = [expand(result_dir / "qc_files" / "qc_raw" / "{sample}_{i}.html", i=[1,2], sample=list(samples.index)),
+                      expand(result_dir / "qc_files" / "qc_raw" / "{sample}_{i}_fastqc.zip", i=[1,2], sample=list(samples.index))]
+    
+    if config['skip_trimming']:
+        return expected_files
+
+    return expected_files + [expand(result_dir / "qc_files" / "qc_trimmed" / "{sample}_{j}P.html", j=[1,2], sample=list(samples.index)),
+                             expand(result_dir / "qc_files" / "qc_trimmed" / "{sample}_{j}P_fastqc.zip", j=[1,2], sample=list(samples.index))]
+
+def determine_trimming_exe():
+    if config['skip_trimming']:
+        return []
+    return expand(result_dir / "trimmed" / "{sample}_{j}P.fq.gz", j=[1,2], sample=list(samples.index))
+
 # read config settings
 sample_files = Path(config["samples"])
 reference = Path(config["reference"])
@@ -18,7 +41,8 @@ samples = pd.read_csv(sample_files, index_col ="sample", sep='\t')
 rule all:
     input:
         expand(result_dir / "stats" / "{sample}.stats_aug", sample=list(samples.index)),
-        result_dir / "qc_files" / "final_qc_report.html"
+        result_dir / "qc_files" / "final_qc_report.html",
+        determine_trimming_exe()
 
 rule aug_stats:
     input:

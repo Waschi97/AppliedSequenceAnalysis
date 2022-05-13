@@ -18,8 +18,8 @@ rule mapping:
     threads:
         4
     params:
-        min_frag_len = config["min_frag_length"],
-        max_frag_len = config["max_frag_length"],
+        min_frag_len = config["bowtie2_mapping"]['I'],
+        max_frag_len = config["bowtie2_mapping"]['X'],
         idx_base = result_dir / "ref_idx" / "reference"
     conda:
         Path("..") / "envs" / "samtools_bowtie_env.yaml"

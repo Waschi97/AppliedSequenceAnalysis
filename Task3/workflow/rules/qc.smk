@@ -1,10 +1,7 @@
 rule multiqc:
     input:
-        raw_html = expand(result_dir / "qc_files" / "qc_raw" / "{sample}_{i}.html", i=[1,2], sample=list(samples.index)),
-        raw_zip = expand(result_dir / "qc_files" / "qc_raw" / "{sample}_{i}_fastqc.zip", i=[1,2], sample=list(samples.index)),
-        trimm_html = expand(result_dir / "qc_files" / "qc_trimmed" / "{sample}_{j}{k}.html", k=['P','U'], j=[1,2], sample=list(samples.index)),
-        trimm_zip = expand(result_dir / "qc_files" / "qc_trimmed" / "{sample}_{j}{k}_fastqc.zip", k=['P','U'], j=[1,2], sample=list(samples.index)),
-        mapping_html = expand(result_dir / "qc_files" / "qualimap" / "{sample}" / "qualimapReport.html", sample=list(samples.index))
+        fastqc_files = determine_fastqc_exe(),
+        mapping_html = determine_qualimap_exe()
     output:
         result_dir / "qc_files" / "final_qc_report.html"
     log:
@@ -18,10 +15,10 @@ rule multiqc:
 
 rule fastqc_trimm:
     input:
-        lambda wildcards: result_dir / "trimmed" / f"{wildcards.sample}_{wildcards.j}{wildcards.k}.fq.gz"
+        lambda wildcards: result_dir / "trimmed" / f"{wildcards.sample}_{wildcards.j}P.fq.gz"
     output:
-        html = result_dir / "qc_files" / "qc_trimmed" / "{sample}_{j}{k}.html",
-        zip = result_dir / "qc_files" / "qc_trimmed" / "{sample}_{j}{k}_fastqc.zip"
+        html = result_dir / "qc_files" / "qc_trimmed" / "{sample}_{j}P.html",
+        zip = result_dir / "qc_files" / "qc_trimmed" / "{sample}_{j}P_fastqc.zip"
     params: "--quiet"
     threads: 1
     wrapper:
