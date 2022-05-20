@@ -23,6 +23,19 @@ rule index:
     shell:
         "samtools index -@ {threads} {input}"
 
+rule assembly:
+    input:
+        reads = result_dir / "bam_sorted" / "{sample}.bam"
+    output:
+        result_dir / "assembled_genomes" "{sample}.FASTA"
+    conda:
+        Path("..") / "envs" / "samtools_bowtie_env.yaml"
+    params:
+        out_prefix = result_dir / "assembled_genomes" "{sample}",
+        min_depth = config["ivar_assembly"]["min_depth"]
+    shell:
+        "samtools mpileup -aa -A -d 0 -Q 0 {input.reads} | ivar consensus -m {params.min_depth} -p {params.out_prefix}"
+
 rule sort:
     input:
         result_dir / "bam" / "{sample}.bam"

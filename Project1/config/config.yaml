@@ -3,13 +3,16 @@ reference: "/storage/mi/tomw97/Data/AppliedSeqAn/reference/cov_ref.FASTA"
 # file containg samples with paired end reads (with given formating)
 samples: "/home/mi/tomw97/Schreibtisch/Development/AppliedSequenceAnalysis/Data/samples_project1.tsv"
 # folder to save results to
-results: "/home/mi/tomw97/Schreibtisch/Development/AppliedSequenceAnalysis/Project1/results"
+results: "/storage/mi/tomw97/Data/AppliedSeqAn/Project1/results"
 # fasta file containing adapter seqs
 adapter: "resources/TruSeq2-PE.fa"
 # bowtie2 settings
 bowtie2_mapping:
   X: 500  # maximum fragment length
   I: 0    # minimum fragment length
+# assembly settings
+ivar_assembly:
+  min_depth: 10 # minimum depth to call a consensus, if not reached 'N' will be reported there
 # skip settings
 skip_qualimap: False
 skip_trimming: False
