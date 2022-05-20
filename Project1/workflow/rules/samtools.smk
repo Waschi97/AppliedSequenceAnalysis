@@ -27,11 +27,11 @@ rule assembly:
     input:
         reads = result_dir / "bam_sorted" / "{sample}.bam"
     output:
-        result_dir / "assembled_genomes" "{sample}.FASTA"
+        result_dir / "assembled_genomes" / "{sample}.fa"
     conda:
         Path("..") / "envs" / "samtools_bowtie_env.yaml"
     params:
-        out_prefix = result_dir / "assembled_genomes" "{sample}",
+        out_prefix = lambda wildcards: result_dir / "assembled_genomes" / f"{wildcards.sample}",
         min_depth = config["ivar_assembly"]["min_depth"]
     shell:
         "samtools mpileup -aa -A -d 0 -Q 0 {input.reads} | ivar consensus -m {params.min_depth} -p {params.out_prefix}"

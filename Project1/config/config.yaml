@@ -1,11 +1,13 @@
 # reference file for mapping
 reference: "/storage/mi/tomw97/Data/AppliedSeqAn/reference/cov_ref.FASTA"
 # file containg samples with paired end reads (with given formating)
+# For this project we removed sample 'SRR11314339' since its adapter content was too high
+# and we were unable to trimm it.
 samples: "/home/mi/tomw97/Schreibtisch/Development/AppliedSequenceAnalysis/Data/samples_project1.tsv"
 # folder to save results to
 results: "/storage/mi/tomw97/Data/AppliedSeqAn/Project1/results"
 # fasta file containing adapter seqs
-adapter: "resources/TruSeq2-PE.fa"
+adapter: "resources/all_adapter_seqs.fa"
 # bowtie2 settings
 bowtie2_mapping:
   X: 500  # maximum fragment length
