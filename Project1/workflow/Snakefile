@@ -42,6 +42,7 @@ rule all:
     input:
         expand(result_dir / "stats" / "{sample}.stats_aug", sample=list(samples.index)),
         result_dir / "qc_files" / "final_qc_report.html",
+        result_dir / "mult_align" / "alignment.fa",
         determine_trimming_exe()
 
 rule aug_stats:
@@ -53,6 +54,8 @@ rule aug_stats:
         rpk_script
 
 include: Path("rules") / "qc.smk"
+
+include: Path("rules") / "phylo.smk"
 
 include: Path("rules") / "samtools.smk"
 

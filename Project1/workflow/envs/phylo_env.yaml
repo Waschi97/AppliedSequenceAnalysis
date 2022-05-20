@@ -1,0 +1,8 @@
+channels:
+  - bioconda
+  - conda-forge
+  - BioBuilds
+dependencies:
+  - clustalomega
+  - fasttree
+  - newick_utils
