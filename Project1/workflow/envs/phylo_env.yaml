@@ -3,6 +3,7 @@ channels:
   - conda-forge
   - BioBuilds
 dependencies:
-  - clustalomega
+  - mafft
   - fasttree
   - newick_utils
+  - reportlab
