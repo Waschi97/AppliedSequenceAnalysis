@@ -54,7 +54,7 @@ rule trimm:
         base_name = lambda wildcards: result_dir / "trimmed" / f"{wildcards.sample}.fq.gz"
         # TODO: set actual parameters
     threads:
-        4
+        10
     conda:
         Path("..") / "envs" / "qc_tools_env.yaml"
     shell:

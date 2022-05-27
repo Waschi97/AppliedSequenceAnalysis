@@ -16,7 +16,7 @@ rule mapping:
     log:
         result_dir / "log" / "bowtie2_mapping" / "{sample}.log"
     threads:
-        4
+        30
     params:
         min_frag_len = config["bowtie2_mapping"]['I'],
         max_frag_len = config["bowtie2_mapping"]['X'],
@@ -42,7 +42,7 @@ rule genome_index:
     log:
         result_dir / "log" / "bowtie2_indexing.log"
     threads:
-        4
+        10
     params:
         idx_base = result_dir / "ref_idx" / "reference"
     conda:

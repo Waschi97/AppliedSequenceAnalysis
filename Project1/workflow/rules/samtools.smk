@@ -5,7 +5,7 @@ rule stats:
     output:
         result_dir / "stats" / "{sample}.stats"
     threads:
-        4
+        10
     conda:
         Path("..") / "envs" / "samtools_bowtie_env.yaml"
     shell:
@@ -17,7 +17,7 @@ rule index:
     output:
         result_dir / "bam_sorted" / "{sample}.bam.bai"
     threads:
-        4
+        30
     conda:
         Path("..") / "envs" / "samtools_bowtie_env.yaml"
     shell:
@@ -42,7 +42,7 @@ rule sort:
     output:
         result_dir / "bam_sorted" / "{sample}.bam"
     threads:
-        4
+        30
     conda:
         Path("..") / "envs" / "samtools_bowtie_env.yaml"
     shell:
@@ -54,7 +54,7 @@ rule convert:
     output:
         result_dir / "bam" / "{sample}.bam"
     threads:
-        4
+        30
     conda:
         Path("..") / "envs" / "samtools_bowtie_env.yaml"
     shell:
