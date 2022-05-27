@@ -33,9 +33,9 @@ result_dir = Path(config["results"])
 adapter_seqs = Path(config["adapter"])
 
 # python script for rpk calculation
-rpk_script = str(Path("workflow") / "scripts" / "calc_rpk.py")
+rpk_script = str(Path("scripts") / "calc_rpk.py")
 # python script for variance calculation
-var_script = str(Path("workflow") / "scripts" / "calc_seq_var.py")
+var_script = str(Path("scripts") / "calc_seq_var.py")
 
 # read file containing sample paths
 samples = pd.read_csv(sample_files, index_col ="sample", sep='\t')
@@ -45,16 +45,19 @@ rule all:
         expand(result_dir / "stats" / "{sample}.stats_aug", sample=list(samples.index)),
         result_dir / "qc_files" / "final_qc_report.html",
         result_dir / "phylogenetic_tree" / "cov_phylogeny.pdf",
+        result_dir / "sequence_variance" / "seq_var.txt",
         determine_trimming_exe()
 
 rule seq_var:
     input:
         result_dir / "mult_align" / "alignment.fa"
     output:
-        csv = result_dir / "sequence_variance" / "seq_var.csv",
-        png = result_dir / "sequence_variance" / "seq_var.csv"
+        txt = result_dir / "sequence_variance" / "seq_var.txt",
+        png = result_dir / "sequence_variance" / "seq_var.png"
     conda:
-        Path("workflow") / "envs" / "python_env.yaml"
+        Path("envs") / "python_env.yaml"
+    params:
+        window_size = config["seq_var"]["window_size"]
     script:
         var_script
 
@@ -63,6 +66,8 @@ rule aug_stats:
         result_dir / "stats" / "{sample}.stats"
     output:
         result_dir / "stats" / "{sample}.stats_aug"
+    conda:
+        Path("envs") / "python_env.yaml"
     script:
         rpk_script
 

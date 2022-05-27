@@ -15,6 +15,9 @@ bowtie2_mapping:
 # assembly settings
 ivar_assembly:
   min_depth: 10 # minimum depth to call a consensus, if not reached 'N' will be reported there
+# sequence variability settings
+seq_var:
+  window_size: 150
 # skip settings
 skip_qualimap: False
 skip_trimming: False
