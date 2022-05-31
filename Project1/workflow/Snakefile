@@ -44,8 +44,10 @@ rule all:
     input:
         expand(result_dir / "stats" / "{sample}.stats_aug", sample=list(samples.index)),
         result_dir / "qc_files" / "final_qc_report.html",
+        expand(result_dir / "assembled_genomes" / "{sample}.fa", sample=list(samples.index)),
         result_dir / "phylogenetic_tree" / "cov_phylogeny.pdf",
         result_dir / "sequence_variance" / "seq_var.txt",
+        result_dir / "sequence_variance" / "seq_var.png",
         determine_trimming_exe()
 
 rule seq_var:
