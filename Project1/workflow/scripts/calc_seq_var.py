@@ -65,13 +65,13 @@ with open(snakemake.output.txt, 'w') as f:
 
     start_last_window = window_size * num_windows + 1
     f.write(f"{start_last_window}-{len(seq_var)}: {seq_var_windowed[-1]}")
-    X.append(len(seq_var))
+    X.append(start_last_window)
 
 # plotting
 fig = plt.figure()
 ax = plt.axes()
 plt.plot(X, seq_var_windowed)
-ax.set_xlabel("window starting positions")
+ax.set_xlabel("window starting position")
 ax.set_ylabel("avg. sequence variability")
 ax.set_title(f"Sequence Variability for Windows of Size {window_size} bp")
 fig.tight_layout()
