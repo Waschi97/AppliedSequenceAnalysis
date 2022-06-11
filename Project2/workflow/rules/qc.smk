@@ -15,7 +15,7 @@ rule multiqc:
 
 rule fastqc_trimm:
     input:
-        lambda wildcards: result_dir / "trimmed" / f"{wildcards.sample}_{wildcards.j}P.fq.gz"
+        fqc_input
     output:
         html = result_dir / "qc_files" / "qc_trimmed" / "{sample}_{j}P.html",
         zip = result_dir / "qc_files" / "qc_trimmed" / "{sample}_{j}P_fastqc.zip"

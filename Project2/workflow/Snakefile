@@ -42,6 +42,12 @@ def fq_assembly_input(wildcards):
         return [result_dir / "trimmed" / f"{wildcards.sample}_1P.fq.gz", result_dir / "trimmed" / f"{wildcards.sample}_2P.fq.gz"]
     return [result_dir / "filtered_fastq" / "{sample}_1.fastq.gz", result_dir / "filtered_fastq" / "{sample}_2.fastq.gz"]
 
+# define input for fastqc analysis
+def fqc_input(wildcards):
+    if config['skip_decontamination']:
+        return result_dir / "trimmed" / f"{wildcards.sample}_{wildcards.j}P.fq.gz"
+    return result_dir / "filtered_fastq" / f"{wildcards.sample}_{wildcards.j}.fastq.gz"
+
 # extract contaminants db from sample tsv, if available
 def get_contaminant_db(wildcards):
     try:
@@ -74,10 +80,6 @@ rule all:
         result_dir / "sequence_variance" / "seq_var.txt",
         result_dir / "sequence_variance" / "seq_var.png",
         determine_trimming_exe()
-
-rule test:
-    input:
-        expand(result_dir / "normalization" / "{sample}_norm_1.fastq.gz", sample=list(samples.index))
 
 rule seq_var:
     input:
