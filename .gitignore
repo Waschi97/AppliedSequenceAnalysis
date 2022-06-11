@@ -9,7 +9,6 @@
 *.stats
 *.stats_aug
 *.snakemake
-Data/
 .snakemake/
 *.log
 *.html
@@ -19,3 +18,5 @@ Data/
 *.json
 *.gif
 *.bt2
+*.fasta
+*.fa

@@ -1,0 +1,109 @@
+from pathlib import Path
+import pandas as pd
+
+configfile: Path("config") / "config.yaml"
+
+def determine_qualimap_exe():
+    if config['skip_qualimap']:
+        return []
+    return expand(result_dir / "qc_files" / "qualimap" / "{sample}" / "qualimapReport.html", sample=list(samples.index))
+
+def determine_fastqc_exe():
+    if config['skip_fastQC']:
+        return []
+    
+    expected_files = [expand(result_dir / "qc_files" / "qc_raw" / "{sample}_{i}.html", i=[1,2], sample=list(samples.index)),
+                      expand(result_dir / "qc_files" / "qc_raw" / "{sample}_{i}_fastqc.zip", i=[1,2], sample=list(samples.index))]
+    
+    if config['skip_trimming']:
+        return expected_files
+
+    return expected_files + [expand(result_dir / "qc_files" / "qc_trimmed" / "{sample}_{j}P.html", j=[1,2], sample=list(samples.index)),
+                             expand(result_dir / "qc_files" / "qc_trimmed" / "{sample}_{j}P_fastqc.zip", j=[1,2], sample=list(samples.index))]
+
+def determine_trimming_exe():
+    if config['skip_trimming']:
+        return []
+    return expand(result_dir / "trimmed" / "{sample}_{j}P.fq.gz", j=[1,2], sample=list(samples.index))
+
+# use trimmed reads if available (decontamination input)
+def fq_trimmed_input(wildcards):
+    if config['skip_trimming']:
+        return samples.loc[wildcards.sample, :]
+    return [result_dir / "trimmed" / f"{wildcards.sample}_1P.fq.gz", result_dir / "trimmed" / f"{wildcards.sample}_2P.fq.gz"]
+
+# returns fastq files that went through the most preprocessing
+# use filtered (decontaminated) and/or trimmed reads if available
+# (genome assembly input)
+def fq_filtered_input(wildcards):
+    if config['skip_decontamination']:
+        if config['skip_trimming']:
+            return samples.loc[wildcards.sample, :]
+        return [result_dir / "trimmed" / f"{wildcards.sample}_1P.fq.gz", result_dir / "trimmed" / f"{wildcards.sample}_2P.fq.gz"]
+    return [result_dir / "filtered_fastq" / "{sample}_1.fastq.gz", result_dir / "filtered_fastq" / "{sample}_2.fastq.gz"]
+
+# extract contaminants db from sample tsv, if available
+def get_contaminant_db(wildcards):
+    try:
+        open(samples.loc[wildcards.sample, "c_db"])
+        return samples.loc[wildcards.sample, "c_db"]
+    except:
+        return config["decontamination_db"]
+
+# read config settings
+sample_files = Path(config["samples"])
+reference = Path(config["reference"])
+result_dir = Path(config["results"])
+adapter_seqs = Path(config["adapter"])
+
+# python script for rpk calculation
+rpk_script = str(Path("scripts") / "calc_rpk.py")
+# python script for variance calculation
+var_script = str(Path("scripts") / "calc_seq_var.py")
+
+# read file containing sample paths
+samples = pd.read_csv(sample_files, index_col ="sample", sep='\t')
+
+rule all:
+    input:
+        expand(result_dir / "stats" / "{sample}.stats_aug", sample=list(samples.index)),
+        result_dir / "qc_files" / "final_qc_report.html",
+        #result_dir / "kraken_screening" / "final_kraken_report.html",
+        expand(result_dir / "assembled_genomes" / "{sample}.fa", sample=list(samples.index)),
+        result_dir / "phylogenetic_tree" / "cov_phylogeny.pdf",
+        result_dir / "sequence_variance" / "seq_var.txt",
+        result_dir / "sequence_variance" / "seq_var.png",
+        determine_trimming_exe()
+
+rule seq_var:
+    input:
+        result_dir / "mult_align" / "alignment.fa"
+    output:
+        txt = result_dir / "sequence_variance" / "seq_var.txt",
+        png = result_dir / "sequence_variance" / "seq_var.png"
+    conda:
+        Path("envs") / "python_env.yaml"
+    params:
+        window_size = config["seq_var"]["window_size"]
+    script:
+        var_script
+
+rule aug_stats:
+    input:
+        result_dir / "stats" / "{sample}.stats"
+    output:
+        result_dir / "stats" / "{sample}.stats_aug"
+    conda:
+        Path("envs") / "python_env.yaml"
+    script:
+        rpk_script
+
+include: Path("rules") / "qc.smk"
+
+include: Path("rules") / "decon.smk"
+
+include: Path("rules") / "phylo.smk"
+
+include: Path("rules") / "samtools.smk"
+
+include: Path("rules") / "bowtie.smk"

@@ -1,0 +1,9 @@
+channels:
+  - bioconda
+  - conda-forge
+  - BioBuilds
+dependencies:
+  - mafft
+  - fasttree
+  - newick_utils
+  - reportlab
