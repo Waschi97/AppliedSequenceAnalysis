@@ -35,7 +35,7 @@ def fq_trimmed_input(wildcards):
 # returns fastq files that went through the most preprocessing
 # use filtered (decontaminated) and/or trimmed reads if available
 # (genome assembly input)
-def fq_filtered_input(wildcards):
+def fq_assembly_input(wildcards):
     if config['skip_decontamination']:
         if config['skip_trimming']:
             return samples.loc[wildcards.sample, :]
@@ -75,6 +75,10 @@ rule all:
         result_dir / "sequence_variance" / "seq_var.png",
         determine_trimming_exe()
 
+rule test:
+    input:
+        expand(result_dir / "normalization" / "{sample}_norm_1.fastq.gz", sample=list(samples.index))
+
 rule seq_var:
     input:
         result_dir / "mult_align" / "alignment.fa"
@@ -98,12 +102,14 @@ rule aug_stats:
     script:
         rpk_script
 
-include: Path("rules") / "qc.smk"
-
-include: Path("rules") / "decon.smk"
-
 include: Path("rules") / "phylo.smk"
 
 include: Path("rules") / "samtools.smk"
 
 include: Path("rules") / "bowtie.smk"
+
+include: Path("rules") / "denovo.smk"
+
+include: Path("rules") / "decon.smk"
+
+include: Path("rules") / "qc.smk"
