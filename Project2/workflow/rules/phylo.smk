@@ -10,7 +10,7 @@ rule tree_convert:
     params:
         script = Path("workflow") / "scripts" / "txt2pdf.py"
     shell:
-        "python3 {params.script} -o {output} {input} 2> {log}"
+        "python3 {params.script} -o {output} {input} > {log} 2>&1"
 
 rule tree_topology:
     input:

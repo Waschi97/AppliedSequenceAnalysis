@@ -11,7 +11,7 @@ rule multiqc:
     conda:
         Path("..") / "envs" / "qc_tools_env.yaml"
     shell:
-        "multiqc {params.dir} -n {output} 2> {log}"
+        "multiqc {params.dir} -n {output} > {log} 2>&1"
 
 rule fastqc_trimm:
     input:
@@ -38,7 +38,7 @@ rule mapping_stats:
     conda:
         Path("..") / "envs" / "qc_tools_env.yaml"
     shell:
-        "qualimap bamqc -bam {input} -outdir {params.dir} 2> {log}"
+        "qualimap bamqc -bam {input} -outdir {params.dir} > {log} 2>&1"
 
 rule trimm:
     input:
@@ -61,7 +61,7 @@ rule trimm:
     conda:
         Path("..") / "envs" / "qc_tools_env.yaml"
     shell:
-        "mkdir -p {params.output_dir} && trimmomatic PE -threads {threads} {input.fq1} {input.fq2} -baseout {params.base_name} ILLUMINACLIP:{adapter_seqs}:{params.mismatches}:{params.score_threshold}:10 2> {log}"
+        "mkdir -p {params.output_dir} && trimmomatic PE -threads {threads} {input.fq1} {input.fq2} -baseout {params.base_name} ILLUMINACLIP:{adapter_seqs}:{params.mismatches}:{params.score_threshold}:10 > {log} 2>&1"
 
 rule fastqc_raw:
     input:

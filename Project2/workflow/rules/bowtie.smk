@@ -1,6 +1,6 @@
 rule mapping:
     input:
-        fqs = fq_filtered_input,
+        fqs = fq_assembly_input,
         idx = multiext(
             str(result_dir / "ref_idx" / "reference"),
             ".1.bt2",
@@ -23,7 +23,7 @@ rule mapping:
     conda:
         Path("..") / "envs" / "samtools_bowtie_env.yaml"
     shell:
-        "bowtie2 -x {params.idx_base} -1 {input.fqs[0]} -2 {input.fqs[1]} -p {threads} -X {params.max_frag_len} -I {params.min_frag_len} -S {output} 2> {log}"
+        "bowtie2 -x {params.idx_base} -1 {input.fqs[0]} -2 {input.fqs[1]} -p {threads} -X {params.max_frag_len} -I {params.min_frag_len} -S {output} > {log} 2>&1"
 
 rule genome_index:
     input:
@@ -47,4 +47,4 @@ rule genome_index:
     conda:
         Path("..") / "envs" / "samtools_bowtie_env.yaml"
     shell:
-        "bowtie2-build {reference} {params.idx_base} -p {threads} 2> {log}"
+        "bowtie2-build {reference} {params.idx_base} -p {threads} > {log} 2>&1"

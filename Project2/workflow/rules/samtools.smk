@@ -25,7 +25,7 @@ rule index:
     conda:
         Path("..") / "envs" / "samtools_bowtie_env.yaml"
     shell:
-        "samtools index -@ {threads} {input} 2> {log}"
+        "samtools index -@ {threads} {input} > {log} 2>&1"
 
 rule assembly:
     input:
@@ -41,7 +41,7 @@ rule assembly:
         out_prefix = lambda wildcards: result_dir / "assembled_genomes" / f"{wildcards.sample}",
         min_depth = config["ivar_assembly"]["min_depth"]
     shell:
-        "samtools mpileup -aa -A -d 0 -Q 0 {input.reads} 2> {log.mpileup} | ivar consensus -m {params.min_depth} -p {params.out_prefix} 2> {log.ivar}"
+        "samtools mpileup -aa -A -d 0 -Q 0 {input.reads} 2> {log.mpileup} | ivar consensus -m {params.min_depth} -p {params.out_prefix} > {log} 2>&1"
 
 rule sort:
     input:
@@ -55,7 +55,7 @@ rule sort:
     conda:
         Path("..") / "envs" / "samtools_bowtie_env.yaml"
     shell:
-        "samtools sort -@ {threads} -o {output} {input} 2> {log}"
+        "samtools sort -@ {threads} -o {output} {input} > {log} 2>&1"
 
 rule convert:
     input:
@@ -69,4 +69,4 @@ rule convert:
     conda:
         Path("..") / "envs" / "samtools_bowtie_env.yaml"
     shell:
-        "samtools view -@ {threads} -b -o {output} {input} 2> {log}"
+        "samtools view -@ {threads} -b -o {output} {input} > {log} 2>&1"

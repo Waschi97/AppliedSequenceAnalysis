@@ -10,7 +10,7 @@ rule screen:
     conda:
         Path("..") / "envs" / "decon_env.yaml"
     shell:
-        "multiqc {params.dir} -n {output} 2> {log}"
+        "multiqc {params.dir} -n {output} > {log} 2>&1"
 
 rule kraken:
     input:
@@ -38,7 +38,7 @@ rule filtered_fastq:
     threads:
         10
     shell:
-        "samtools fastq -@ {threads} {input} -1 {output.fq1} -2 {output.fq2} -0 /dev/null -s /dev/null -n 2> {log}"
+        "samtools fastq -@ {threads} {input} -1 {output.fq1} -2 {output.fq2} -0 /dev/null -s /dev/null -n > {log} 2>&1"
 
 rule contaminant_sort:
     input:
@@ -52,7 +52,7 @@ rule contaminant_sort:
     conda:
         Path("..") / "envs" / "samtools_bowtie_env.yaml"
     shell:
-        "samtools sort -n -m 5G -@ {threads} -o {output} {input} 2> {log}"
+        "samtools sort -n -m 5G -@ {threads} -o {output} {input} > {log} 2>&1"
 
 rule filter:
     input:
@@ -64,7 +64,7 @@ rule filter:
     conda:
         Path("..") / "envs" / "samtools_bowtie_env.yaml"
     shell:
-        "samtools view -b -f 12 -F 256 {input} > {output} 2> {log}"
+        "samtools view -b -f 12 -F 256 {input} > {output} > {log} 2>&1"
 
 rule contaminant_convert:
     input:
@@ -78,7 +78,7 @@ rule contaminant_convert:
     conda:
         Path("..") / "envs" / "samtools_bowtie_env.yaml"
     shell:
-        "samtools view -@ {threads} -b -o {output} {input} 2> {log}"
+        "samtools view -@ {threads} -b -o {output} {input} > {log} 2>&1"
 
 rule contaminant_mapping:
     input:
@@ -97,7 +97,7 @@ rule contaminant_mapping:
     conda:
         Path("..") / "envs" / "samtools_bowtie_env.yaml"
     shell:
-        "bowtie2 -x {params.idx_base} -1 {input.fqs[0]} -2 {input.fqs[1]} -p {threads} -X {params.max_frag_len} -I {params.min_frag_len} -S {output} 2> {log}"
+        "bowtie2 -x {params.idx_base} -1 {input.fqs[0]} -2 {input.fqs[1]} -p {threads} -X {params.max_frag_len} -I {params.min_frag_len} -S {output} > {log} 2>&1"
 
 rule contaminant_indexing:
     input:
@@ -113,4 +113,4 @@ rule contaminant_indexing:
     conda:
         Path("..") / "envs" / "samtools_bowtie_env.yaml"
     shell:
-        "bowtie2-build {input} {params.idx_base} -p {threads} 2> {log}"
+        "bowtie2-build {input} {params.idx_base} -p {threads} > {log} 2>&1"
