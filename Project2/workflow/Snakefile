@@ -70,11 +70,30 @@ var_script = str(Path("scripts") / "calc_seq_var.py")
 # read file containing sample paths
 samples = pd.read_csv(sample_files, index_col ="sample", sep='\t')
 
+# extract databases from reference input
+ref_files = []
+ref_ids = []
+with open(reference, 'r') as refs:
+    current_file = Path("")
+    for line in refs:
+        if line[0] == ">":
+            id = line[1:].split(' ')[0]
+            current_file = result_dir / "potential_refs" / f"{id}.fasta"
+            ref_files += [str(current_file)]
+            ref_ids += [str(id)]
+            if current_file.is_file(): # skip if file exists already
+                continue
+            (result_dir / "potential_refs").mkdir(exist_ok=True)
+            current_file.touch(exist_ok=False)
+
+        with open(current_file, 'a') as ref:
+            ref.write(line)
+
 rule all:
     input:
         expand(result_dir / "stats" / "{sample}.stats_aug", sample=list(samples.index)),
         result_dir / "qc_files" / "final_qc_report.html",
-        #result_dir / "kraken_screening" / "final_kraken_report.html",
+        result_dir / "kraken_screening" / "final_kraken_report.html",
         expand(result_dir / "assembled_genomes" / "{sample}.fa", sample=list(samples.index)),
         result_dir / "phylogenetic_tree" / "cov_phylogeny.pdf",
         result_dir / "sequence_variance" / "seq_var.txt",

@@ -1,32 +1,43 @@
-# reference file for mapping
+# fasta file containing potential reference genomes for mapping
+# the best will be determined by BLAST searching de-novo contigs
 reference: "/storage/mi/tomw97/Data/AppliedSeqAn/reference/cov_ref.FASTA"
+
 # file containg samples with paired end reads (with given formating) and potentially the corresponding database for decontamination
 # sample  fq1 fq2 db
 # <NAME>  <PATH_TO_FASTQ1>  <PATH_TO_FASTQ2> <PATH_TO_CONTAMINANT_DB>
 # ... ... ... ...
 samples: "/storage/mi/tomw97/Development/AppliedSequenceAnalysis/Data/project2_samples.tsv"
+
 # folder to save results to
 results: "/storage/mi/tomw97/Data/AppliedSeqAn/Project2/results"
+
 # fasta file containing adapter seqs
 adapter: "resources/all_adapter_seqs.fa"
+
 # directory containing the DB files for contamination identification with kraken2
 contamination_db: "/storage/mi/tomw97/Data/AppliedSeqAn/reference/kraken_db"
 # fasta file for decontamination that will be used if no contaminants database is found in 'samples.tsv'
 decontamination_db: ""
+
+
 # bowtie2 settings
 bowtie2_mapping:
   X: 500  # maximum fragment length
   I: 0    # minimum fragment length
+
 # assembly settings
 ivar_assembly:
   min_depth: 10 # minimum depth to call a consensus, if not reached 'N' will be reported there
+
 # sequence variability settings
 seq_var:
   window_size: 150
+
 # trimmomatic settings
 trimmomatic:
   mismatches: 2         # number of allowed mismatches for adapter identification
   score_threshold: 30   # threshold needs to be reached for clipping to happen
+
 # skip settings
 skip_qualimap: False
 skip_trimming: False

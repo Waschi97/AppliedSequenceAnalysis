@@ -27,7 +27,7 @@ rule mapping:
 
 rule genome_index:
     input:
-        reference
+        result_dir / "best_reference" / "reference.fasta"
     output:
         idx=multiext(
             str(result_dir / "ref_idx" / "reference"),
