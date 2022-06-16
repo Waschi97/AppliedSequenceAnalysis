@@ -1,3 +1,20 @@
+rule scaffolding:
+    input:
+        ref = result_dir / "best_reference" / "reference.fasta",
+        contigs = result_dir / "denovo_assembly" / "{sample}" / "contigs.fasta"
+    output:
+        result_dir / "final_references" / "{sample}" / "ragtag.scaffolds.fasta"
+    log:
+        result_dir / "log" / "scaffolding" / "{sample}_ragtag.log"
+    conda:
+        Path("..") / "envs" / "denovo_env.yaml"
+    threads:
+        10
+    params:
+        base_dir = lambda wildcards: result_dir / "final_references" / f"{wildcards.sample}"
+    shell:
+        "ragtag.py scaffold {input.ref} {input.contigs} -o {params.base_dir} -t {threads} -C > {log} 2>&1"
+
 rule best_reference:
     input:
         scores = expand(result_dir / "blast" / "{sample}.tsv", sample=list(samples.index)),
@@ -26,13 +43,15 @@ rule blastn:
     params:
         base_names = expand(result_dir / "potential_refs" / "blast_db" / "{ref_id}", ref_id=ref_ids)
     shell:
-        "blastn -num_threads {threads} -db {params.base_names} -query {input.seqs} -outfmt '6' -out {output}"
+        "blastn -num_threads {threads} -db {params.base_names} -query {input.seqs} -outfmt '6' -out {output} > {log} 2>&1"
 
 rule blast_db:
     input:
         result_dir / "potential_refs" / "{ref_id}.fasta"
     output:
         result_dir / "potential_refs" / "blast_db" / "{ref_id}.ndb"
+    log:
+        result_dir / "log" / "blast_db" / "{ref_id}.log"
     conda:
         Path("..") / "envs" / "denovo_env.yaml"
     threads:
@@ -40,7 +59,7 @@ rule blast_db:
     params:
         base_name = lambda wildcards: result_dir / "potential_refs" / "blast_db" / f"{wildcards.ref_id}"
     shell:
-        "makeblastdb -in {input} -dbtype nucl -parse_seqids -out {params.base_name}"
+        "makeblastdb -in {input} -dbtype nucl -parse_seqids -out {params.base_name} > {log} 2>&1"
 
 rule denovo_assembly:
     input:
