@@ -69,18 +69,19 @@ rule contig_mapping:
     output:
         result_dir / "contig_mapping" / "{sample}.bam"
     log:
-        result_dir / "log" / "contig_mapping" / "{sample}.log"
+        samtools = result_dir / "log" / "contig_mapping" / "{sample}_sam.log",
+        minimap = result_dir / "log" / "contig_mapping" / "{sample}_map.log"
     threads:
         10
     conda:
         Path("..") / "envs" / "denovo_env.yaml"
     shell:
-        "minimap2 -t {threads} -a {input.ref} {input.contigs} | samtools view -h  --output-fmt BAM - > {output} 2> {log}"
+        "minimap2 -t {threads} -a {input.ref} {input.contigs} 2> {log.minimap} | samtools view -h  --output-fmt BAM - > {output} 2> {log.samtools}"
     
 rule best_reference:
     input:
-        scores = result_dir / "blast" / "{sample}.tsv",
-        refs = ref_files
+        scores = result_dir / "blast" / "{sample}.csv",
+        refs = config["reference"]
     output:
         result_dir / "best_references" / "{sample}_ref.fasta"
     conda:
@@ -90,10 +91,18 @@ rule best_reference:
 
 rule blastn:
     input:
-        seqs = result_dir / "denovo_assembly" / "{sample}" / "contigs.fasta",
-        dbs = expand(result_dir / "potential_refs" / "blast_db" / "{ref_id}.ndb", ref_id=ref_ids),
+        query = result_dir / "denovo_assembly" / "{sample}" / "contigs.fasta",
+        blastdb = multiext(str(result_dir / "potential_refs" / "blast_db" / "reference"),
+            ".ndb",
+            ".nhr",
+            ".nin",
+            ".not",
+            ".nsq",
+            ".ntf",
+            ".nto"
+        )
     output:
-        result_dir / "blast" / "{sample}.tsv"
+        result_dir / "blast" / "{sample}.csv"
     log:
         result_dir / "log" / "blast" / "{sample}.log"
     conda:
@@ -101,23 +110,32 @@ rule blastn:
     threads:
         10
     params:
-        base_names = expand(result_dir / "potential_refs" / "blast_db" / "{ref_id}", ref_id=ref_ids)
-    shell:
-        "blastn -num_threads {threads} -db {params.base_names} -query {input.seqs} -outfmt '6' -out {output} > {log} 2>&1"
+        format = "10 qseqid sseqid evalue",
+        extra=""
+    wrapper:
+        "v1.5.0/bio/blast/blastn"
 
 rule blast_db:
     input:
-        result_dir / "potential_refs" / "{ref_id}.fasta"
+        config["reference"]
     output:
-        result_dir / "potential_refs" / "blast_db" / "{ref_id}.ndb"
+        multiext(str(result_dir / "potential_refs" / "blast_db" / "reference"),
+            ".ndb",
+            ".nhr",
+            ".nin",
+            ".not",
+            ".nsq",
+            ".ntf",
+            ".nto"
+        )
     log:
-        result_dir / "log" / "blast_db" / "{ref_id}.log"
+        result_dir / "log" / "blast_db" / "reference.log"
     conda:
         Path("..") / "envs" / "denovo_env.yaml"
     threads:
         10
     params:
-        base_name = lambda wildcards: result_dir / "potential_refs" / "blast_db" / f"{wildcards.ref_id}"
+        base_name = lambda wildcards: result_dir / "potential_refs" / "blast_db" / "reference"
     shell:
         "makeblastdb -in {input} -dbtype nucl -parse_seqids -out {params.base_name} > {log} 2>&1"
 

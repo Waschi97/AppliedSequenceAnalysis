@@ -11,7 +11,7 @@ rule mapping:
     params:
         min_frag_len = config["bowtie2_mapping"]['I'],
         max_frag_len = config["bowtie2_mapping"]['X'],
-        idx_base = lambda wildcards: result_dir / "final_references" / "{wildcards.sample}_idx" / "genome"
+        idx_base = lambda wildcards: result_dir / "final_references" / f"{wildcards.sample}_idx" / "genome"
     conda:
         Path("..") / "envs" / "samtools_bowtie_env.yaml"
     shell:
@@ -27,7 +27,7 @@ rule genome_index:
     threads:
         10
     params:
-        idx_base = lambda wildcards: result_dir / "final_references" / "{wildcards.sample}_idx" / "genome"
+        idx_base = lambda wildcards: result_dir / "final_references" / f"{wildcards.sample}_idx" / "genome"
     conda:
         Path("..") / "envs" / "samtools_bowtie_env.yaml"
     shell:
