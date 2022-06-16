@@ -3,16 +3,15 @@ from shutil import copyfile
 
 score_map = {}
 
-for score_file in snakemake.input.scores:
-    with open(score_file) as sf:
-        for line in sf:
-            values = line.split('\t')
-            genome = str(values[1])
-            score = float(values[2])
-            if genome in score_map:
-                score_map[genome] += [score]
-                continue
-            score_map[genome] = [score]
+with open(snakemake.input.scores) as sf:
+    for line in sf:
+        values = line.split('\t')
+        genome = str(values[1])
+        score = float(values[2])
+        if genome in score_map:
+            score_map[genome] += [score]
+            continue
+        score_map[genome] = [score]
 
 best_reference = ""
 top_score = float("-inf")

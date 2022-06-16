@@ -4,3 +4,4 @@ dependencies:
   - bowtie2
   - samtools
   - ivar
+  - bcftools

@@ -1,28 +1,88 @@
-rule scaffolding:
+rule final_reference:
     input:
-        ref = result_dir / "best_reference" / "reference.fasta",
-        contigs = result_dir / "denovo_assembly" / "{sample}" / "contigs.fasta"
+        calls = result_dir / "bctftools" / "mpileup" / "{sample}" / "calls.vcf.gz",
+        ref = result_dir / "best_references" / "{sample}_ref.fasta"
     output:
-        result_dir / "final_references" / "{sample}" / "ragtag.scaffolds.fasta"
+        result_dir / "final_references" / "{sample}_ref.fasta"
     log:
-        result_dir / "log" / "scaffolding" / "{sample}_ragtag.log"
-    conda:
-        Path("..") / "envs" / "denovo_env.yaml"
+        idx = result_dir / "log" / "bcftools" / "index" / "{sample}.log",
+        cns = result_dir / "log" / "bcftools" / "consensus" / "{sample}.log"
     threads:
         10
-    params:
-        base_dir = lambda wildcards: result_dir / "final_references" / f"{wildcards.sample}"
+    conda:
+        Path("..") / "envs" / "samtools_bowtie_env.yaml"
     shell:
-        "ragtag.py scaffold {input.ref} {input.contigs} -o {params.base_dir} -t {threads} -C > {log} 2>&1"
+        "bcftools index {input.calls} --threads {threads} 2> {log.idx} && cat {input.ref} | bcftools consensus {input.calls} > {output} 2> {log.cns}"
 
+rule contig_mpileup:
+    input:
+        bam = result_dir / "contig_map_sorted" / "{sample}_sorted.bam",
+        idx = result_dir / "contig_map_sorted" / "{sample}_sorted.bam.bai",
+        ref = result_dir / "best_references" / "{sample}_ref.fasta"
+    output:
+        result_dir / "bctftools" / "mpileup" / "{sample}" / "calls.vcf.gz"
+    log:
+        mpile = result_dir / "log" / "contig_mpileup" / "{sample}_mpileup.log",
+        call = result_dir / "log" / "contig_mpileup" / "{sample}_call.log"
+    threads:
+        10
+    conda:
+        Path("..") / "envs" / "samtools_bowtie_env.yaml"
+    shell:
+        "bcftools mpileup -Ou -f {input.ref} {input.bam} --threads {threads} 2> {log.mpile} | bcftools call --threads {threads} -mv -Oz -o {output} 2> {log.call}"
+
+
+rule contig_idx:
+    input:
+        result_dir / "contig_map_sorted" / "{sample}_sorted.bam"
+    output:
+        result_dir / "contig_map_sorted" / "{sample}_sorted.bam.bai"
+    log:
+        result_dir / "log" / "contig_idx" / "{sample}.log"
+    threads:
+        10
+    conda:
+        Path("..") / "envs" / "samtools_bowtie_env.yaml"
+    shell:
+        "samtools index {input} -@ {threads} 2> {log}"
+
+
+rule contig_sort:
+    input:
+        result_dir / "contig_mapping" / "{sample}.bam"
+    output:
+        result_dir / "contig_map_sorted" / "{sample}_sorted.bam"
+    log:
+        result_dir / "log" / "contig_sort" / "{sample}.log"
+    threads:
+        10
+    conda:
+       Path("..") / "envs" / "samtools_bowtie_env.yaml"
+    shell:
+        "samtools sort -o {output} {input} -@ {threads} 2> {log}"
+
+
+rule contig_mapping:
+    input:
+        ref = result_dir / "best_references" / "{sample}_ref.fasta",
+        contigs = result_dir / "denovo_assembly" / "{sample}" / "contigs.fasta"
+    output:
+        result_dir / "contig_mapping" / "{sample}.bam"
+    log:
+        result_dir / "log" / "contig_mapping" / "{sample}.log"
+    threads:
+        10
+    conda:
+        Path("..") / "envs" / "denovo_env.yaml"
+    shell:
+        "minimap2 -t {threads} -a {input.ref} {input.contigs} | samtools view -h  --output-fmt BAM - > {output} 2> {log}"
+    
 rule best_reference:
     input:
-        scores = expand(result_dir / "blast" / "{sample}.tsv", sample=list(samples.index)),
+        scores = result_dir / "blast" / "{sample}.tsv",
         refs = ref_files
     output:
-        result_dir / "best_reference" / "reference.fasta"
-    log:
-        result_dir / "log" / "best_reference.log"
+        result_dir / "best_references" / "{sample}_ref.fasta"
     conda:
         Path("..") / "envs" / "python_env.yaml"
     script:
@@ -77,7 +137,7 @@ rule denovo_assembly:
     params:
         out_dir = lambda wildcards: result_dir / "denovo_assembly" / f"{wildcards.sample}"
     shell:
-        "spades.py --careful -t {threads} -1 {input.nfq1} -2 {input.nfq2} -o {params.out_dir} > {log} 2>&1"    
+        "spades.py -t {threads} -1 {input.nfq1} -2 {input.nfq2} -o {params.out_dir} > {log} 2>&1"    
 
 rule cov_normalization:
     input:

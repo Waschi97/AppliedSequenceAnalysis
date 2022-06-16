@@ -1,6 +1,6 @@
 # fasta file containing potential reference genomes for mapping
 # the best will be determined by BLAST searching de-novo contigs
-reference: "/storage/mi/tomw97/Data/AppliedSeqAn/reference/cov_ref.FASTA"
+reference: "/storage/mi/tomw97/Data/AppliedSeqAn/reference/CoV_refs.fa"
 
 # file containg samples with paired end reads (with given formating) and potentially the corresponding database for decontamination
 # sample  fq1 fq2 db
