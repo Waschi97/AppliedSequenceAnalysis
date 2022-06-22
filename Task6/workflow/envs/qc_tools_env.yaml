@@ -1,0 +1,7 @@
+channels:
+  - bioconda
+  - conda-forge
+dependencies:
+  - trimmomatic
+  - qualimap
+  - multiqc == 1.12
