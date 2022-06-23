@@ -3,6 +3,10 @@ import pandas as pd
 
 configfile: Path("config") / "config.yaml"
 
+# ------------------------------------------------------------------ #
+#             functions for input/output determination               #
+# ------------------------------------------------------------------ #
+
 def determine_qualimap_exe():
     if config['skip_qualimap']:
         return []
@@ -21,6 +25,17 @@ def determine_fastqc_exe():
     return expected_files + [expand(result_dir / "qc_files" / "qc_trimmed" / "{sample}_{j}P.html", j=[1,2], sample=list(samples.index)),
                              expand(result_dir / "qc_files" / "qc_trimmed" / "{sample}_{j}P_fastqc.zip", j=[1,2], sample=list(samples.index))]
 
+def determine_assembly_route():
+    expected_files = []
+    
+    if config['denovo_assembly']:
+        expected_files += expand(result_dir / "denovo" / "quant_results" / "{sample}", sample=list(samples.index))
+    
+    if config['reference_assembly']:
+        expected_files += expand(result_dir / "denovo" / "gene_expression" / "{sample}.genes.results", sample=list(samples.index))
+    
+    return expected_files
+
 def determine_trimming_exe():
     if config['skip_trimming']:
         return []
@@ -31,6 +46,7 @@ def fq_trimmed_input(wildcards):
         return []
     return result_dir / "trimmed" / f"{wildcards.sample}_{wildcards.j}P.fq.gz"
 
+# returns all fq1 files if 'left' is True, all fq2 files else
 def fq_denovo_input(left):
     if config['skip_trimming']:
         return list(samples.loc[:, "fq1"]) if left else list(samples.loc[:, "fq2"])
@@ -38,10 +54,15 @@ def fq_denovo_input(left):
         return expand(result_dir / "trimmed" / "{sample}_1P.fq.gz", sample=list(samples.index))
     return expand(result_dir / "trimmed" / "{sample}_2P.fq.gz", sample=list(samples.index))
 
+# returns sample pair of fq files (trimmed if trimming was executed)
 def fq_assembly_input(wildcards):
     if config['skip_trimming']:
         return samples.loc[wildcards.sample, :]
     return [result_dir / "trimmed" / f"{wildcards.sample}_1P.fq.gz", result_dir / "trimmed" / f"{wildcards.sample}_2P.fq.gz"]
+
+# ------------------------------------------------------------------ #
+#                           script start                             #
+# ------------------------------------------------------------------ #
 
 # read config settings
 sample_files = Path(config["samples"])
@@ -56,12 +77,22 @@ samples = pd.read_csv(sample_files, index_col ="sample", sep='\t')
 rule all:
     input:
         result_dir / "qc_files" / "final_qc_report.html",
-        expand(result_dir / "transcripts" / "{sample}.gft", sample=list(samples.index)),
-        expand(result_dir / "quant_results" / "{sample}", sample=list(samples.index)),
+        expand(result_dir / "ref_mapping" / "transcripts" / "{sample}.gft", sample=list(samples.index)),
+        determine_assembly_route(),
         determine_trimming_exe()
+
+
+
+# ------------------------------------------------------------------ #
+#                               rules                                #
+# ------------------------------------------------------------------ #
 
 include: Path("rules") / "qc.smk"
 
 include: Path("rules") / "ref_mapping.smk"
 
 include: Path("rules") / "denovo.smk"
+
+include: Path("rules") / "kallisto.smk"
+
+include: Path("rules") / "rsem.smk"
