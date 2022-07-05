@@ -9,13 +9,13 @@ reference_assembly: True
 # fasta file containing reference genome for mapping
 reference: "/storage/mi/tomw97/Data/AppliedSeqAn/reference/chr22_human/Homo_sapiens.GRCh38.dna.chromosome.22.fa"
 # gff/gft annotation file corresponding to the reference
-reference_annotation: "/storage/mi/tomw97/Data/AppliedSeqAn/reference/chr22_human/Homo_sapiens.GRCh38.106.chromosome.22.gff3"
+reference_annotation: "/storage/mi/tomw97/Data/AppliedSeqAn/reference/chr22_human/gencode.v40.annotation.gff3"
 
 # file containg samples with paired end reads (with given formating)
 # sample  fq1 fq2
 # <NAME>  <PATH_TO_FASTQ1>  <PATH_TO_FASTQ2>
 # ... ... ... ...
-samples: "/storage/mi/tomw97/Development/AppliedSequenceAnalysis/Data/task6_samples.tsv"
+samples: "/storage/mi/tomw97/Development/AppliedSequenceAnalysis/Data/task7_samples.tsv"
 
 # folder to save results to
 results: "/storage/mi/tomw97/Data/AppliedSeqAn/Task6/results"

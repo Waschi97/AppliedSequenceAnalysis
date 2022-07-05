@@ -1,0 +1,7 @@
+channels:
+  - r
+  - bioconda
+  - default
+dependencies:
+  - r
+  - r-sleuth

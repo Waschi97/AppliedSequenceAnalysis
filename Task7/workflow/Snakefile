@@ -79,8 +79,11 @@ rule all:
         result_dir / "qc_files" / "final_qc_report.html",
         expand(result_dir / "ref_mapping" / "transcripts" / "{sample}.gft", sample=list(samples.index)),
         determine_assembly_route(),
-        determine_trimming_exe()
-
+        determine_trimming_exe(),
+        result_dir / "sleuth" / "results.csv",
+        result_dir / "sleuth" / "pca.pdf",
+        # because DESeq didn't work - but featureCounts worked:
+        expand(result_dir / "featurecounts" / "{sample}.{end}", sample=list(samples.index), end=[".featureCounts", ".featureCounts.summary", ".featureCounts.jcounts"])
 
 
 # ------------------------------------------------------------------ #
@@ -88,6 +91,8 @@ rule all:
 # ------------------------------------------------------------------ #
 
 include: Path("rules") / "qc.smk"
+
+include: Path("rules") / "gene_expression.smk"
 
 include: Path("rules") / "ref_mapping.smk"
 
