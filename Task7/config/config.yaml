@@ -1,0 +1,34 @@
+# perform denovo based assembly with trinity
+# calculates transcripts with Kallisto and RSEM
+denovo_assembly: True
+# perform reference based assembly with HISAT2
+# calculates transcripts with StrinTie
+# Note: 'reference' & 'reference_annotation' have to be available if this is 'True'
+reference_assembly: True
+
+# fasta file containing reference genome for mapping
+reference: "/storage/mi/tomw97/Data/AppliedSeqAn/reference/chr22_human/Homo_sapiens.GRCh38.dna.chromosome.22.fa"
+# gff/gft annotation file corresponding to the reference
+reference_annotation: "/storage/mi/tomw97/Data/AppliedSeqAn/reference/chr22_human/Homo_sapiens.GRCh38.106.chromosome.22.gff3"
+
+# file containg samples with paired end reads (with given formating)
+# sample  fq1 fq2
+# <NAME>  <PATH_TO_FASTQ1>  <PATH_TO_FASTQ2>
+# ... ... ... ...
+samples: "/storage/mi/tomw97/Development/AppliedSequenceAnalysis/Data/task6_samples.tsv"
+
+# folder to save results to
+results: "/storage/mi/tomw97/Data/AppliedSeqAn/Task6/results"
+
+# fasta file containing adapter seqs
+adapter: "resources/all_adapter_seqs.fa"
+
+# trimmomatic settings
+trimmomatic:
+  mismatches: 2         # number of allowed mismatches for adapter identification
+  score_threshold: 30   # threshold needs to be reached for clipping to happen
+
+# skip settings
+skip_qualimap: False
+skip_trimming: False
+skip_fastQC: False
