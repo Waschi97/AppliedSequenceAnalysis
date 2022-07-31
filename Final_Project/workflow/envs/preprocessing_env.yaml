@@ -1,0 +1,11 @@
+channels:
+  - bioconda
+  - conda-forge
+dependencies:
+  - trimmomatic
+  - samtools
+  - bowtie2
+  - bbmap
+  - porechop
+  - nanoplot
+  - multiqc == 1.13a

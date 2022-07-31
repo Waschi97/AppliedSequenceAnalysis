@@ -1,0 +1,9 @@
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - python=2.7
+  - spades
+  - prokka
+  - quast

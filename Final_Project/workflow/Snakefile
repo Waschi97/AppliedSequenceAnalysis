@@ -1,0 +1,96 @@
+from pathlib import Path
+import pandas as pd
+
+configfile: Path("config") / "config.yaml"
+
+# ------------------------------------------------------------------ #
+#             functions for input/output determination               #
+# ------------------------------------------------------------------ #
+
+# use trimmed reads if available (decontamination input)
+def fq_trimmed_input(wildcards):
+    if config['skip_trimming_Illumina']:
+        return samples.loc[wildcards.sample, :]
+    return [result_dir / "trimmed" / f"{wildcards.sample}_1P.fq.gz", result_dir / "trimmed" / f"{wildcards.sample}_2P.fq.gz"]
+
+# returns fastq files that went through the most preprocessing
+# use filtered (decontaminated) and/or trimmed reads if available
+# (genome assembly input)
+def fq_assembly_input(wildcards):
+    if config['skip_decontamination']:
+        if config['skip_trimming_Illumina']:
+            return samples.loc[wildcards.sample, :]
+        return [result_dir / "trimmed" / f"{wildcards.sample}_1P.fq.gz", result_dir / "trimmed" / f"{wildcards.sample}_2P.fq.gz"]
+    return [result_dir / "filtered_fastq" / f"{wildcards.sample}_1.fastq.gz", result_dir / "filtered_fastq" / f"{wildcards.sample}_2.fastq.gz"]
+
+def ONT_assembly_input(wildcards):
+    if not config['ONT_correction']:
+        return
+    
+    if config['skip_trimming_ONT']:
+        return samples.at[wildcards.sample, "ONT"]
+    return result_dir / "trimmed_ONT" / f"{wildcards.sample}_ONT_trimmed.fastq.gz"
+
+def fq_preproccessed(wildcards):
+    if config['skip_coverage_normalization']:
+        if config['skip_decontamination']:
+            if config['skip_trimming_Illumina']:
+                return []
+            return result_dir / "trimmed" / f"{wildcards.sample}_{wildcards.i}P.fq.gz"
+        return result_dir / "filtered_fastq" / f"{wildcards.sample}_{wildcards.i}.fastq.gz"
+    return result_dir / "normalization" / f"{wildcards.sample}_norm_{wildcards.i}.fastq.gz"
+
+def determine_fastqc_exe():
+    if config['skip_fastQC']:
+        return []
+    
+    expected_files = [expand(result_dir / "qc_files" / "preprocessing" / "qc_raw" / "{sample}_{i}.html", i=[1,2], sample=list(samples.index)),
+                      expand(result_dir / "qc_files" / "preprocessing" / "qc_raw" / "{sample}_{i}_fastqc.zip", i=[1,2], sample=list(samples.index))]
+    
+    if config['skip_trimming_Illumina'] and config['skip_decontamination'] and config['skip_coverage_normalization']:
+        return expected_files
+
+    return expected_files + [expand(result_dir / "qc_files" / "preprocessing" / "qc_prep" / "{sample}_{i}.html", i=[1,2], sample=list(samples.index)),
+                             expand(result_dir / "qc_files" / "preprocessing" / "qc_prep" / "{sample}_{i}_fastqc.zip", i=[1,2], sample=list(samples.index))]
+                        
+def determine_nanoplot_exe():
+    if config['skip_nanoplot']:
+        return []
+
+    expected_files = expand(result_dir / "qc_files" / "preprocessing" / "nanoplot" / "{sample}_raw_NanoStats.txt", sample=list(samples.index))
+
+    if config['skip_trimming_ONT']:
+        return expected_files
+
+    return expected_files + [expand(result_dir / "qc_files" / "preprocessing" / "nanoplot" / "{sample}_prep_NanoStats.txt", sample=list(samples.index))]
+
+# ------------------------------------------------------------------ #
+#                           script start                             #
+# ------------------------------------------------------------------ #
+
+# read config settings
+sample_files = Path(config["samples"])
+result_dir = Path(config["results"])
+adapter_seqs = Path(config["adapter"])
+
+if not Path(adapter_seqs).is_file():
+    adapter_seqs = Path("resources/all_adapter_seqs.fa")
+
+# read file containing sample paths
+samples = pd.read_csv(sample_files, index_col ="sample", sep='\t')
+
+rule all:
+    input:
+        result_dir / "qc_files" / "final_qc_report.html",
+        expand(result_dir / "annotation" / "{sample}.gff", sample=list(samples.index)),
+        result_dir / "qc_files" / "assembly_qc" / "report.html"
+
+# ------------------------------------------------------------------ #
+#                               rules                                #
+# ------------------------------------------------------------------ #
+
+include: Path("rules") / "taxonomic_screening.smk"
+
+include: Path("rules") / "preprocessing.smk"
+
+include: Path("rules") / "assembly.smk"

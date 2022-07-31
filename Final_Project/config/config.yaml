@@ -1,0 +1,38 @@
+# file containing samples with paired end reads (and potentially Oxford Nanopore Reads)
+# sample  fq1 fq2 ONT
+# <NAME>  <PATH_TO_FASTQ1>  <PATH_TO_FASTQ2>  <PATH_TO_ONT>
+# ... ... ... ...
+samples: "/storage/mi/tomw97/Development/AppliedSequenceAnalysis/Data/final_samples_ONT.tsv"
+
+# Enables/Disables assembly correction with ONT data (ONT reads have to be provided in 'samples.tsv')
+ONT_correction: True
+
+# folder to save results to
+results: "/storage/mi/tomw97/Data/AppliedSeqAn/Final_Project/results"
+
+# fasta file containing adapter seqs (optional)
+# If left empty a default file with commonly used adapters will be used.
+adapter: ""
+
+# directory containing the DB files for contamination identification with kraken2
+kraken_db: "/storage/mi/tomw97/Data/AppliedSeqAn/reference/kraken_db"
+
+# fasta file containing a contamination database
+# use 'snakemake --use-conda screen' to get a taxonomic screening
+contamination_db: ""
+
+# maximum number of threads
+max_threads: 20
+
+# trimmomatic settings
+trimmomatic:
+  mismatches: 2         # number of allowed mismatches for adapter identification
+  score_threshold: 30   # threshold needs to be reached for clipping to happen
+
+# skip settings
+skip_trimming_Illumina: False
+skip_trimming_ONT: False
+skip_fastQC: False      # Illumina QC
+skip_nanoplot: False    # ONT QC
+skip_decontamination: True
+skip_coverage_normalization: False
