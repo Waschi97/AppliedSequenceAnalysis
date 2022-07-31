@@ -186,14 +186,14 @@ rule nanoplot_raw:
     log:
         result_dir / "log" / "nanoplot"/ "{sample}_raw.log"
     params:
-        dir = lambda wildcards: result_dir / "qc_files" / "nanoplot",
+        out_dir = lambda wildcards: result_dir / "qc_files" / "preprocessing" / "nanoplot",
         prefix = lambda wildcards: f"{wildcards.sample}_raw_"
     threads:
         config['max_threads']
     conda:
         Path("..") / "envs" / "preprocessing_env.yaml"
     shell:
-        "NanoPlot -t {threads} -o {params.dir} -p {params.prefix} --fastq {input} 2> {log}"
+        "NanoPlot -t {threads} -o {params.out_dir} -p {params.prefix} --fastq {input} 2> {log}"
 
 rule nanoplot_prep:
     input:
@@ -203,14 +203,14 @@ rule nanoplot_prep:
     log:
         result_dir / "log" / "nanoplot"/ "{sample}_prep.log"
     params:
-        dir = lambda wildcards: result_dir / "qc_files" / "nanoplot",
+        out_dir = lambda wildcards: result_dir / "qc_files" / "preprocessing" / "nanoplot",
         prefix = lambda wildcards: f"{wildcards.sample}_prep_"
     threads:
         config['max_threads']
     conda:
         Path("..") / "envs" / "preprocessing_env.yaml"
     shell:
-        "NanoPlot -t {threads} -o {params.dir} -p {params.prefix} --fastq {input} 2> {log}"
+        "NanoPlot -t {threads} -o {params.out_dir} -p {params.prefix} --fastq {input} 2> {log}"
 
 # MultiQC
 
