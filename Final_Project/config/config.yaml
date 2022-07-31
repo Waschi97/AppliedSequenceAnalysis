@@ -17,7 +17,7 @@ adapter: ""
 # directory containing the DB files for contamination identification with kraken2
 kraken_db: "/storage/mi/tomw97/Data/AppliedSeqAn/reference/kraken_db"
 
-# fasta file containing a contamination database
+# fasta file containing a contamination database (for decontamination of Illumina reads)
 # use 'snakemake --use-conda screen' to get a taxonomic screening
 contamination_db: ""
 
@@ -28,6 +28,9 @@ max_threads: 20
 trimmomatic:
   mismatches: 2         # number of allowed mismatches for adapter identification
   score_threshold: 30   # threshold needs to be reached for clipping to happen
+
+roary:
+  threshold: 70         # threshold for core genome calculation (percentage of genomes containing a gene for it to be considered 'core')
 
 # skip settings
 skip_trimming_Illumina: False

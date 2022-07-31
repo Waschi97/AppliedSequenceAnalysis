@@ -82,8 +82,8 @@ samples = pd.read_csv(sample_files, index_col ="sample", sep='\t')
 rule all:
     input:
         result_dir / "qc_files" / "preprocessing" / "final_qc_report.html",
-        expand(result_dir / "genbank_genomes" / "{sample}.gbk", sample=list(samples.index)),
-        result_dir / "qc_files" / "assembly" / "report.html"
+        result_dir / "qc_files" / "assembly" / "report.html",
+        result_dir / "core_genome" / "core_gene_alignment.aln"
 
 # ------------------------------------------------------------------ #
 #                               rules                                #
@@ -95,4 +95,4 @@ include: Path("rules") / "preprocessing.smk"
 
 include: Path("rules") / "assembly.smk"
 
-include: Path("rules") / "pan_genome_analysis.smk"
+include: Path("rules") / "phylo.smk"
