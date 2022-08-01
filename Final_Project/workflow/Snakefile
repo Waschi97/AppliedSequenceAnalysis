@@ -76,6 +76,17 @@ adapter_seqs = Path(config["adapter"])
 if not Path(adapter_seqs).is_file():
     adapter_seqs = Path("resources/all_adapter_seqs.fa")
 
+# construct RAxML model string
+raxml_model = "GTR" + config['RAxML']['model']
+
+if config['RAxML']['iv_sites']:
+    raxml_model = raxml_model + "I"
+elif config['RAxML']['ASC']:
+    raxml_model = "ASC_" + raxml_model
+
+if config['RAxML']['ML_freq']:
+    raxml_model = raxml_model + "X"
+
 # read file containing sample paths
 samples = pd.read_csv(sample_files, index_col ="sample", sep='\t')
 
@@ -83,7 +94,7 @@ rule all:
     input:
         result_dir / "qc_files" / "preprocessing" / "final_qc_report.html",
         result_dir / "qc_files" / "assembly" / "report.html",
-        result_dir / "core_genome" / "core_gene_alignment.aln"
+        result_dir / "RAxML_files" / "RAxML_bestTree.tree"
 
 # ------------------------------------------------------------------ #
 #                               rules                                #

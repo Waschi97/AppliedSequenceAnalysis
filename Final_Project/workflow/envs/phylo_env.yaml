@@ -4,4 +4,4 @@ channels:
  - defaults
 dependencies:
  - roary
- - fasttree
+ - raxml

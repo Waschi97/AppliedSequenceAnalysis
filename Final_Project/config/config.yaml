@@ -32,6 +32,12 @@ trimmomatic:
 roary:
   threshold: 70         # threshold for core genome calculation (percentage of genomes containing a gene for it to be considered 'core')
 
+RAxML:
+  model: "GAMMA"        # 'GAMMA' or 'CAT'
+  ML_freq: False        # use maximum likelihood estimate for base frequencies instead of empirical method
+  iv_sites: False       # enable estimate of proportion of invariable sites
+  ASC: False            # enable correction of likelihood regarding ascertainment bias (doesn't work if 'iv_sites' is 'True')
+
 # skip settings
 skip_trimming_Illumina: False
 skip_trimming_ONT: False
