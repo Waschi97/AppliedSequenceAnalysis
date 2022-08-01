@@ -4,11 +4,11 @@
 # ... ... ... ...
 samples: "/storage/mi/tomw97/Development/AppliedSequenceAnalysis/Data/final_samples_ONT.tsv"
 
-# Enables/Disables assembly correction with ONT data (ONT reads have to be provided in 'samples.tsv')
-ONT_correction: True
-
 # folder to save results to
 results: "/storage/mi/tomw97/Data/AppliedSeqAn/Final_Project/results"
+
+# maximum number of threads
+max_threads: 20
 
 # fasta file containing adapter seqs (optional)
 # If left empty a default file with commonly used adapters will be used.
@@ -21,8 +21,14 @@ kraken_db: "/storage/mi/tomw97/Data/AppliedSeqAn/reference/kraken_db"
 # use 'snakemake --use-conda screen' to get a taxonomic screening
 contamination_db: ""
 
-# maximum number of threads
-max_threads: 20
+# Enables/Disables assembly correction with ONT data (ONT reads have to be provided in 'samples.tsv')
+ONT_correction: True
+
+# Phylogenetic Blacklisting
+# file containing sample names (corresponding to the 'samples' input) - 1 sample name per row
+# If no blacklisting should occur just pass no file here, e.g. ""
+blacklist: "/storage/mi/tomw97/Development/AppliedSequenceAnalysis/Data/blacklist.txt"
+blacklist_core_genome: True # Start blacklisting at core genome calculation (instead of at tree calculation)
 
 # trimmomatic settings
 trimmomatic:

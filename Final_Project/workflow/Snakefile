@@ -94,7 +94,7 @@ rule all:
     input:
         result_dir / "qc_files" / "preprocessing" / "final_qc_report.html",
         result_dir / "qc_files" / "assembly" / "report.html",
-        result_dir / "RAxML_files" / "RAxML_bestTree.tree"
+        result_dir / "core_genome_phylogeny" / "RAxML_bestTree.png"
 
 # ------------------------------------------------------------------ #
 #                               rules                                #
