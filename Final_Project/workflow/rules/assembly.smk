@@ -31,7 +31,7 @@ rule assembly_qc:
     conda:
         Path("..") / "envs" / "assembly_env.yaml"
     threads:
-        config['max_threads']
+        min(10, config['max_threads'])
     params:
         out_dir = result_dir / "qc_files" / "assembly"
     shell:

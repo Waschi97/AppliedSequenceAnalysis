@@ -17,7 +17,7 @@ rule trimm_short:
         mismatches = config["trimmomatic"]["mismatches"],
         score_threshold = config["trimmomatic"]["score_threshold"],
     threads:
-        config['max_threads']
+        min(10, config['max_threads'])
     conda:
         Path("..") / "envs" / "preprocessing_env.yaml"
     shell:
@@ -33,7 +33,7 @@ rule trimm_long:
     log:
         result_dir / "log" / "porechop" / "{sample}.log"
     threads:
-        config['max_threads']
+        min(10, config['max_threads'])
     conda:
         Path("..") / "envs" / "preprocessing_env.yaml"
     shell:
@@ -82,7 +82,7 @@ rule contaminant_convert:
     log:
         result_dir / "log" / "contaminant_convert" / "sam2bam_{sample}.log"
     threads:
-        config['max_threads']
+        min(10, config['max_threads'])
     conda:
         Path("..") / "envs" / "preprocessing_env.yaml"
     shell:
@@ -108,7 +108,7 @@ rule contaminant_sort:
     log:
         result_dir / "log" / "contaminant_sort" / "bam_sort_{sample}.log"
     threads:
-        config['max_threads']
+        min(10, config['max_threads'])
     conda:
         Path("..") / "envs" / "preprocessing_env.yaml"
     shell:
@@ -123,7 +123,7 @@ rule filtered_fastq:
     log:
         result_dir / "log" / "filtered_fastq" / "{sample}.log"
     threads:
-        config['max_threads']
+        min(10, config['max_threads'])
     conda:
         Path("..") / "envs" / "preprocessing_env.yaml"
     shell:
@@ -142,7 +142,7 @@ rule cov_normalization:
     conda:
         Path("..") / "envs" / "preprocessing_env.yaml"
     threads:
-        config['max_threads']
+        min(10, config['max_threads'])
     shell:
         "bbnorm.sh in={input[0]} in2={input[1]} out={output.nfq1} out2={output.nfq2} threads={threads}> {log} 2>&1"
 
@@ -158,7 +158,7 @@ rule fastqc_raw:
     log:
         result_dir / "log" / "qc_raw" / "{sample}_{i}_fqc_raw.log"
     params: "--quiet"
-    threads: 1
+    threads: min(5, config['max_threads'])
     wrapper:
         "v1.4.0/bio/fastqc"
 
@@ -172,7 +172,7 @@ rule fastqc_prep:
     log:
         result_dir / "log" / "qc_prep" / "{sample}_{i}_fqc_prep.log"
     params: "--quiet"
-    threads: 1
+    threads: min(5, config['max_threads'])
     wrapper:
         "v1.4.0/bio/fastqc"
 
@@ -189,7 +189,7 @@ rule nanoplot_raw:
         out_dir = lambda wildcards: result_dir / "qc_files" / "preprocessing" / "nanoplot",
         prefix = lambda wildcards: f"{wildcards.sample}_raw_"
     threads:
-        config['max_threads']
+        min(5, config['max_threads'])
     conda:
         Path("..") / "envs" / "preprocessing_env.yaml"
     shell:
@@ -206,7 +206,7 @@ rule nanoplot_prep:
         out_dir = lambda wildcards: result_dir / "qc_files" / "preprocessing" / "nanoplot",
         prefix = lambda wildcards: f"{wildcards.sample}_prep_"
     threads:
-        config['max_threads']
+        min(5, config['max_threads'])
     conda:
         Path("..") / "envs" / "preprocessing_env.yaml"
     shell:
