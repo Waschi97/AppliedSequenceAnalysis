@@ -14,15 +14,20 @@ def fq_trimmed_input(wildcards):
     return [result_dir / "trimmed" / f"{wildcards.sample}_1P.fq.gz", result_dir / "trimmed" / f"{wildcards.sample}_2P.fq.gz"]
 
 # returns fastq files that went through the most preprocessing
-# use filtered (decontaminated) and/or trimmed reads if available
+# use normalized, filtered (decontaminated) and/or trimmed reads if available
 # (genome assembly input)
 def fq_assembly_input(wildcards):
-    if config['skip_decontamination']:
-        if config['skip_trimming_Illumina']:
-            return samples.loc[wildcards.sample, :]
-        return [result_dir / "trimmed" / f"{wildcards.sample}_1P.fq.gz", result_dir / "trimmed" / f"{wildcards.sample}_2P.fq.gz"]
-    return [result_dir / "filtered_fastq" / f"{wildcards.sample}_1.fastq.gz", result_dir / "filtered_fastq" / f"{wildcards.sample}_2.fastq.gz"]
+    if config['skip_coverage_normalization']:
+        if config['skip_decontamination']:
+            if config['skip_trimming_Illumina']:
+                return samples.loc[wildcards.sample, :]
+            return [result_dir / "trimmed" / f"{wildcards.sample}_1P.fq.gz", result_dir / "trimmed" / f"{wildcards.sample}_2P.fq.gz"]
+        return [result_dir / "filtered_fastq" / f"{wildcards.sample}_1.fastq.gz", result_dir / "filtered_fastq" / f"{wildcards.sample}_2.fastq.gz"]
+    return [result_dir / "normalization" / f"{wildcards.sample}_norm_1.fastq.gz", result_dir / "normalization" / f"{wildcards.sample}_norm_2.fastq.gz"]
 
+# returns trimmed ONT reads if available
+# or nothing if ONT correction is disabled
+# (genome assembly input)
 def ONT_assembly_input(wildcards):
     if not ONT_correction:
         return
@@ -31,6 +36,8 @@ def ONT_assembly_input(wildcards):
         return samples.at[wildcards.sample, "ONT"]
     return result_dir / "trimmed_ONT" / f"{wildcards.sample}_ONT_trimmed.fastq.gz"
 
+# same as 'fq_assembly_input', but returns 'None' if all preprocessing is skipped
+# (fastQC input post-preprocessing)
 def fq_preproccessed(wildcards):
     if config['skip_coverage_normalization']:
         if config['skip_decontamination']:
@@ -40,6 +47,7 @@ def fq_preproccessed(wildcards):
         return result_dir / "filtered_fastq" / f"{wildcards.sample}_{wildcards.i}.fastq.gz"
     return result_dir / "normalization" / f"{wildcards.sample}_norm_{wildcards.i}.fastq.gz"
 
+# determines expected files from fastQC execution
 def determine_fastqc_exe():
     if config['skip_fastQC']:
         return
@@ -52,7 +60,8 @@ def determine_fastqc_exe():
 
     return expected_files + [expand(result_dir / "qc_files" / "preprocessing" / "qc_prep" / "{sample}_{i}.html", i=[1,2], sample=list(samples.index)),
                              expand(result_dir / "qc_files" / "preprocessing" / "qc_prep" / "{sample}_{i}_fastqc.zip", i=[1,2], sample=list(samples.index))]
-                        
+
+# determines expected files from nanoplot execution                        
 def determine_nanoplot_exe():
     if config['skip_nanoplot']:
         return
@@ -64,11 +73,13 @@ def determine_nanoplot_exe():
 
     return expected_files + [expand(result_dir / "qc_files" / "preprocessing" / "nanoplot" / "{sample}_prep_NanoStats.txt", sample=list(samples.index))]
 
+# determines expected files from MLST execution
 def determine_mlst_exe():
     if config['skip_MLST']:
         return
     return result_dir / "db_screening" / "mlst_summary.tsv"
 
+# determines expected files from database screening (CARD, VFDB, PlasmidFinder)
 def determine_db_screening_exe():
     expected_files = []
 
@@ -87,7 +98,7 @@ def determine_db_screening_exe():
 #                           script start                             #
 # ------------------------------------------------------------------ #
 
-# read config settings
+# read some config settings
 sample_files = Path(config["samples"])
 result_dir = Path(config["results"])
 adapter_seqs = Path(config["adapter"])
@@ -109,9 +120,14 @@ if config['RAxML']['ML_freq']:
 # read file containing sample paths
 samples = pd.read_csv(sample_files, index_col ="sample", sep='\t')
 
+# disable ONT correction if no ONT files are given
 ONT_correction = config['ONT_correction']
-if not "ONT" in list(samples.columns):  # to avoid potential index errors
+if not "ONT" in list(samples.columns):
     ONT_correction = False
+
+# ------------------------------------------------------------------ #
+#                               rules                                #
+# ------------------------------------------------------------------ #
 
 rule all:
     input:
@@ -120,10 +136,6 @@ rule all:
         result_dir / "core_genome_phylogeny" / "RAxML_bestTree.png",
         determine_mlst_exe(),
         result_dir / "db_screening" / "abricate_summary.tsv" if len([determine_db_screening_exe()]) <= 1 else []
-
-# ------------------------------------------------------------------ #
-#                               rules                                #
-# ------------------------------------------------------------------ #
 
 include: Path("rules") / "taxonomic_screening.smk"
 
