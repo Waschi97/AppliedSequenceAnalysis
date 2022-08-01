@@ -18,7 +18,7 @@ def fq_trimmed_input(wildcards):
 # (genome assembly input)
 def fq_assembly_input(wildcards):
     if config['skip_coverage_normalization']:
-        if config['skip_decontamination']:
+        if skip_decontamination:
             if config['skip_trimming_Illumina']:
                 return samples.loc[wildcards.sample, :]
             return [result_dir / "trimmed" / f"{wildcards.sample}_1P.fq.gz", result_dir / "trimmed" / f"{wildcards.sample}_2P.fq.gz"]
@@ -40,7 +40,7 @@ def ONT_assembly_input(wildcards):
 # (fastQC input post-preprocessing)
 def fq_preproccessed(wildcards):
     if config['skip_coverage_normalization']:
-        if config['skip_decontamination']:
+        if skip_decontamination:
             if config['skip_trimming_Illumina']:
                 return
             return result_dir / "trimmed" / f"{wildcards.sample}_{wildcards.i}P.fq.gz"
@@ -55,7 +55,7 @@ def determine_fastqc_exe():
     expected_files = [expand(result_dir / "qc_files" / "preprocessing" / "qc_raw" / "{sample}_{i}.html", i=[1,2], sample=list(samples.index)),
                       expand(result_dir / "qc_files" / "preprocessing" / "qc_raw" / "{sample}_{i}_fastqc.zip", i=[1,2], sample=list(samples.index))]
     
-    if config['skip_trimming_Illumina'] and config['skip_decontamination'] and config['skip_coverage_normalization']:
+    if config['skip_trimming_Illumina'] and skip_decontamination and config['skip_coverage_normalization']:
         return expected_files
 
     return expected_files + [expand(result_dir / "qc_files" / "preprocessing" / "qc_prep" / "{sample}_{i}.html", i=[1,2], sample=list(samples.index)),
@@ -124,6 +124,11 @@ samples = pd.read_csv(sample_files, index_col ="sample", sep='\t')
 ONT_correction = config['ONT_correction']
 if not "ONT" in list(samples.columns):
     ONT_correction = False
+
+# skip decontamination if no contamination database was given
+skip_decontamination = config['skip_decontamination']
+if config['contamination_db'] == "":
+    skip_decontamination = True
 
 # ------------------------------------------------------------------ #
 #                               rules                                #
