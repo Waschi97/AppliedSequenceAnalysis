@@ -15,7 +15,7 @@ rule assembly:
         config['max_threads']
     params:
         out_dir = lambda wildcards: result_dir / "denovo_assembly" / f"{wildcards.sample}",
-        ONT_flag = "--nanopore " if config["ONT_correction"] else ""
+        ONT_flag = "--nanopore " if ONT_correction else ""
     shell:
         "spades.py {params.ONT_flag}{input.ONT} -t {threads} -1 {input.Illumina[0]} -2 {input.Illumina[1]} -o {params.out_dir} > {log} 2>&1"
 

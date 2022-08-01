@@ -1,7 +1,9 @@
 # file containing samples with paired end reads (and potentially Oxford Nanopore Reads)
-# sample  fq1 fq2 ONT
-# <NAME>  <PATH_TO_FASTQ1>  <PATH_TO_FASTQ2>  <PATH_TO_ONT>
+# sample  fq1 fq2 (ONT)
+# <NAME>  <PATH_TO_FASTQ1>  <PATH_TO_FASTQ2>  (<PATH_TO_ONT>)
 # ... ... ... ...
+# Note: ONT files are optional - if none are available leave out the corresponding column
+#       This will set 'ONT_correction' to 'False'
 samples: "/storage/mi/tomw97/Development/AppliedSequenceAnalysis/Data/final_samples_ONT.tsv"
 
 # folder to save results to

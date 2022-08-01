@@ -24,7 +24,7 @@ def fq_assembly_input(wildcards):
     return [result_dir / "filtered_fastq" / f"{wildcards.sample}_1.fastq.gz", result_dir / "filtered_fastq" / f"{wildcards.sample}_2.fastq.gz"]
 
 def ONT_assembly_input(wildcards):
-    if not config['ONT_correction']:
+    if not ONT_correction:
         return
     
     if config['skip_trimming_ONT']:
@@ -35,14 +35,14 @@ def fq_preproccessed(wildcards):
     if config['skip_coverage_normalization']:
         if config['skip_decontamination']:
             if config['skip_trimming_Illumina']:
-                return []
+                return
             return result_dir / "trimmed" / f"{wildcards.sample}_{wildcards.i}P.fq.gz"
         return result_dir / "filtered_fastq" / f"{wildcards.sample}_{wildcards.i}.fastq.gz"
     return result_dir / "normalization" / f"{wildcards.sample}_norm_{wildcards.i}.fastq.gz"
 
 def determine_fastqc_exe():
     if config['skip_fastQC']:
-        return []
+        return
     
     expected_files = [expand(result_dir / "qc_files" / "preprocessing" / "qc_raw" / "{sample}_{i}.html", i=[1,2], sample=list(samples.index)),
                       expand(result_dir / "qc_files" / "preprocessing" / "qc_raw" / "{sample}_{i}_fastqc.zip", i=[1,2], sample=list(samples.index))]
@@ -55,7 +55,7 @@ def determine_fastqc_exe():
                         
 def determine_nanoplot_exe():
     if config['skip_nanoplot']:
-        return []
+        return
 
     expected_files = expand(result_dir / "qc_files" / "preprocessing" / "nanoplot" / "{sample}_raw_NanoStats.txt", sample=list(samples.index))
 
@@ -66,7 +66,7 @@ def determine_nanoplot_exe():
 
 def determine_mlst_exe():
     if config['skip_MLST']:
-        return []
+        return
     return result_dir / "db_screening" / "mlst_summary.tsv"
 
 def determine_db_screening_exe():
@@ -108,6 +108,10 @@ if config['RAxML']['ML_freq']:
 
 # read file containing sample paths
 samples = pd.read_csv(sample_files, index_col ="sample", sep='\t')
+
+ONT_correction = config['ONT_correction']
+if not "ONT" in list(samples.columns):  # to avoid potential index errors
+    ONT_correction = False
 
 rule all:
     input:
