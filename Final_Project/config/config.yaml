@@ -45,9 +45,16 @@ RAxML:
   ASC: False            # enable correction of likelihood regarding ascertainment bias (doesn't work if 'iv_sites' is 'True')
 
 # skip settings
+# Preprocessing
 skip_trimming_Illumina: False
 skip_trimming_ONT: False
-skip_fastQC: False      # Illumina QC
-skip_nanoplot: False    # ONT QC
 skip_decontamination: True
 skip_coverage_normalization: False
+# Quality Control
+skip_fastQC: False      # Illumina QC
+skip_nanoplot: False    # ONT QC
+# Database Screening
+skip_MLST: False
+skip_CARD: False
+skip_VFDB: False
+skip_PlasmidFinder: False

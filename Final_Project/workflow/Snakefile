@@ -64,6 +64,25 @@ def determine_nanoplot_exe():
 
     return expected_files + [expand(result_dir / "qc_files" / "preprocessing" / "nanoplot" / "{sample}_prep_NanoStats.txt", sample=list(samples.index))]
 
+def determine_mlst_exe():
+    if config['skip_MLST']:
+        return []
+    return result_dir / "db_screening" / "mlst_summary.tsv"
+
+def determine_db_screening_exe():
+    expected_files = []
+
+    if not config['skip_CARD']:
+        expected_files = expected_files + [result_dir / "db_screening" / "abricate" / "card.tsv"]
+    
+    if not config['skip_VFDB']:
+        expected_files = expected_files + [result_dir / "db_screening" / "abricate" / "vfdb.tsv"]
+
+    if not config['skip_PlasmidFinder']:
+        expected_files = expected_files + [result_dir / "db_screening" / "abricate" / "plasmidfinder.tsv"]
+
+    return expected_files
+
 # ------------------------------------------------------------------ #
 #                           script start                             #
 # ------------------------------------------------------------------ #
@@ -94,7 +113,9 @@ rule all:
     input:
         result_dir / "qc_files" / "preprocessing" / "final_qc_report.html",
         result_dir / "qc_files" / "assembly" / "report.html",
-        result_dir / "core_genome_phylogeny" / "RAxML_bestTree.png"
+        result_dir / "core_genome_phylogeny" / "RAxML_bestTree.png",
+        determine_mlst_exe(),
+        result_dir / "db_screening" / "abricate_summary.tsv" if len([determine_db_screening_exe()]) <= 1 else []
 
 # ------------------------------------------------------------------ #
 #                               rules                                #
@@ -107,3 +128,5 @@ include: Path("rules") / "preprocessing.smk"
 include: Path("rules") / "assembly.smk"
 
 include: Path("rules") / "phylo.smk"
+
+include: Path("rules") / "db_screening.smk"
