@@ -50,6 +50,9 @@ RAxML:
   iv_sites: False       # enable estimate of proportion of invariable sites
   ASC: False            # enable correction of likelihood regarding ascertainment bias (doesn't work if 'iv_sites' is 'True')
 
+MLST:
+  species: ""           # optional species to search with MLST (if left empty this will be determined automatically)
+
 # Skip:
 # Preprocessing
 skip_trimming_Illumina: False

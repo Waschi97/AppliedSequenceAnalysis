@@ -6,7 +6,7 @@ rule mlst:
     log:
         result_dir / "log" / "mlst" / "{sample}.log",
     params:
-        extra = lambda wildcards: f"--nopath --quiet --label {wildcards.sample}",
+        extra = lambda wildcards: f"--nopath --quiet --label {wildcards.sample} {scheme}",
     threads: 
         config["max_threads"]
     wrapper:

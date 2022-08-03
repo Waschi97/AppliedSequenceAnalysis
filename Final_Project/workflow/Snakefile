@@ -117,6 +117,11 @@ elif config['RAxML']['ASC']:
 if config['RAxML']['ML_freq']:
     raxml_model = raxml_model + "X"
 
+# construct optional scheme string for MLST
+scheme = config['MLST']['species']
+if scheme != "":
+    scheme = "--scheme " + scheme
+
 # read file containing sample paths
 samples = pd.read_csv(sample_files, index_col ="sample", sep='\t')
 
