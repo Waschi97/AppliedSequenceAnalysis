@@ -71,7 +71,7 @@ def determine_fastqc_exe():
 
 # determines expected files from nanoplot execution                        
 def determine_nanoplot_exe():
-    if config['skip']['nanoplot']:
+    if config['skip']['nanoplot'] or not ONT_correction:
         return []
 
     expected_files = expand(result_dir / "qc_files" / "preprocessing" / "nanoplot" / "{sample}_raw_NanoStats.txt", sample=list(samples.index))
