@@ -9,17 +9,25 @@ configfile: Path("config") / "config.yaml"
 
 # use trimmed reads if available (decontamination input)
 def fq_trimmed_input(wildcards):
-    if config['skip_trimming_Illumina']:
+    if config['skip']['trimming_Illumina']:
         return samples.loc[wildcards.sample, :]
     return [result_dir / "trimmed" / f"{wildcards.sample}_1P.fq.gz", result_dir / "trimmed" / f"{wildcards.sample}_2P.fq.gz"]
+
+# use trimmed and/or decontaminated reads if available (normalization input)
+def fq_deconed_input(wildcards):
+    if skip_decontamination:
+        if config['skip']['trimming_Illumina']:
+            return samples.loc[wildcards.sample, :]
+        return [result_dir / "trimmed" / f"{wildcards.sample}_1P.fq.gz", result_dir / "trimmed" / f"{wildcards.sample}_2P.fq.gz"]
+    return [result_dir / "filtered_fastq" / f"{wildcards.sample}_1.fastq.gz", result_dir / "filtered_fastq" / f"{wildcards.sample}_2.fastq.gz"]
 
 # returns fastq files that went through the most preprocessing
 # use normalized, filtered (decontaminated) and/or trimmed reads if available
 # (genome assembly input)
 def fq_assembly_input(wildcards):
-    if config['skip_coverage_normalization']:
+    if config['skip']['coverage_normalization']:
         if skip_decontamination:
-            if config['skip_trimming_Illumina']:
+            if config['skip']['trimming_Illumina']:
                 return samples.loc[wildcards.sample, :]
             return [result_dir / "trimmed" / f"{wildcards.sample}_1P.fq.gz", result_dir / "trimmed" / f"{wildcards.sample}_2P.fq.gz"]
         return [result_dir / "filtered_fastq" / f"{wildcards.sample}_1.fastq.gz", result_dir / "filtered_fastq" / f"{wildcards.sample}_2.fastq.gz"]
@@ -30,32 +38,32 @@ def fq_assembly_input(wildcards):
 # (genome assembly input)
 def ONT_assembly_input(wildcards):
     if not ONT_correction:
-        return
+        return []
     
-    if config['skip_trimming_ONT']:
+    if config['skip']['trimming_ONT']:
         return samples.at[wildcards.sample, "ONT"]
     return result_dir / "trimmed_ONT" / f"{wildcards.sample}_ONT_trimmed.fastq.gz"
 
-# same as 'fq_assembly_input', but returns 'None' if all preprocessing is skipped
+# same as 'fq_assembly_input', but returns "" if all preprocessing is skipped
 # (fastQC input post-preprocessing)
 def fq_preproccessed(wildcards):
-    if config['skip_coverage_normalization']:
+    if config['skip']['coverage_normalization']:
         if skip_decontamination:
-            if config['skip_trimming_Illumina']:
-                return
+            if config['skip']['trimming_Illumina']:
+                return []
             return result_dir / "trimmed" / f"{wildcards.sample}_{wildcards.i}P.fq.gz"
         return result_dir / "filtered_fastq" / f"{wildcards.sample}_{wildcards.i}.fastq.gz"
     return result_dir / "normalization" / f"{wildcards.sample}_norm_{wildcards.i}.fastq.gz"
 
 # determines expected files from fastQC execution
 def determine_fastqc_exe():
-    if config['skip_fastQC']:
-        return
+    if config['skip']['fastQC']:
+        return []
     
     expected_files = [expand(result_dir / "qc_files" / "preprocessing" / "qc_raw" / "{sample}_{i}.html", i=[1,2], sample=list(samples.index)),
                       expand(result_dir / "qc_files" / "preprocessing" / "qc_raw" / "{sample}_{i}_fastqc.zip", i=[1,2], sample=list(samples.index))]
     
-    if config['skip_trimming_Illumina'] and skip_decontamination and config['skip_coverage_normalization']:
+    if config['skip']['trimming_Illumina'] and skip_decontamination and config['skip']['coverage_normalization']:
         return expected_files
 
     return expected_files + [expand(result_dir / "qc_files" / "preprocessing" / "qc_prep" / "{sample}_{i}.html", i=[1,2], sample=list(samples.index)),
@@ -63,33 +71,33 @@ def determine_fastqc_exe():
 
 # determines expected files from nanoplot execution                        
 def determine_nanoplot_exe():
-    if config['skip_nanoplot']:
-        return
+    if config['skip']['nanoplot']:
+        return []
 
     expected_files = expand(result_dir / "qc_files" / "preprocessing" / "nanoplot" / "{sample}_raw_NanoStats.txt", sample=list(samples.index))
 
-    if config['skip_trimming_ONT']:
+    if config['skip']['trimming_ONT']:
         return expected_files
 
     return expected_files + [expand(result_dir / "qc_files" / "preprocessing" / "nanoplot" / "{sample}_prep_NanoStats.txt", sample=list(samples.index))]
 
 # determines expected files from MLST execution
 def determine_mlst_exe():
-    if config['skip_MLST']:
-        return
+    if config['skip']['MLST']:
+        return []
     return result_dir / "db_screening" / "mlst_summary.tsv"
 
 # determines expected files from database screening (CARD, VFDB, PlasmidFinder)
 def determine_db_screening_exe():
     expected_files = []
 
-    if not config['skip_CARD']:
+    if not config['skip']['CARD']:
         expected_files = expected_files + [result_dir / "db_screening" / "abricate" / "card.tsv"]
     
-    if not config['skip_VFDB']:
+    if not config['skip']['VFDB']:
         expected_files = expected_files + [result_dir / "db_screening" / "abricate" / "vfdb.tsv"]
 
-    if not config['skip_PlasmidFinder']:
+    if not config['skip']['PlasmidFinder']:
         expected_files = expected_files + [result_dir / "db_screening" / "abricate" / "plasmidfinder.tsv"]
 
     return expected_files
@@ -131,7 +139,7 @@ if not "ONT" in list(samples.columns):
     ONT_correction = False
 
 # skip decontamination if no contamination database was given
-skip_decontamination = config['skip_decontamination']
+skip_decontamination = config['skip']['decontamination']
 if config['contamination_db'] == "":
     skip_decontamination = True
 

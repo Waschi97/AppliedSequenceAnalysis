@@ -133,7 +133,7 @@ rule filtered_fastq:
 
 rule cov_normalization:
     input:
-        fq_assembly_input
+        fq_deconed_input
     output:
         nfq1 = result_dir / "normalization" / "{sample}_norm_1.fastq.gz",
         nfq2 = result_dir / "normalization" / "{sample}_norm_2.fastq.gz"
@@ -180,7 +180,7 @@ rule fastqc_prep:
 
 rule nanoplot_raw:
     input:
-        lambda wildcards: samples.at[wildcards.sample, "ONT"]
+        lambda wildcards: samples.at[wildcards.sample, "ONT"] if ONT_correction else []
     output:
         result_dir / "qc_files" / "preprocessing" / "nanoplot" / "{sample}_raw_NanoStats.txt"
     log:
@@ -197,7 +197,7 @@ rule nanoplot_raw:
 
 rule nanoplot_prep:
     input:
-        rules.trimm_long.output
+        rules.trimm_long.output if ONT_correction else []
     output:
         result_dir / "qc_files" / "preprocessing" / "nanoplot" / "{sample}_prep_NanoStats.txt"
     log:

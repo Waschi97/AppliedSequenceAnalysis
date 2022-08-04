@@ -5,8 +5,7 @@ rule assembly:
         Illumina = fq_assembly_input,
         ONT = ONT_assembly_input
     output:
-        result_dir / "denovo_assembly" / "{sample}" / "contigs.fasta",
-        result_dir / "denovo_assembly" / "{sample}" / "scaffolds.fasta"
+        result_dir / "denovo_assembly" / "{sample}" / "contigs.fasta"
     log:
         result_dir / "log" / "spades_denovo_assembly" / "{sample}.log"
     conda:
