@@ -133,8 +133,8 @@ if scheme != "":
 # read file containing sample paths
 samples = pd.read_csv(sample_files, index_col ="sample", sep='\t')
 
-# disable ONT correction if no ONT files are given
-ONT_correction = config['ONT_correction']
+# enable/disable ONT correction depending on if ONT files are given in samples.tsv
+ONT_correction = True
 if not "ONT" in list(samples.columns):
     ONT_correction = False
 

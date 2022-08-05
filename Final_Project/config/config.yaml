@@ -4,13 +4,10 @@
 # ... ... ... ...
 # Note: ONT files are optional - if none are available leave out the corresponding column
 #       This will set 'ONT_correction' to 'False'
-samples: "/storage/mi/tomw97/Development/AppliedSequenceAnalysis/Data/final_samples_without_ONT.tsv"
-
-# Enables/Disables assembly correction with ONT data (ONT reads have to be provided in 'samples.tsv')
-ONT_correction: True
+samples: "/storage/mi/tomw97/Development/AppliedSequenceAnalysis/Data/final_samples_ONT.tsv"
 
 # folder to save results to
-results: "/storage/mi/tomw97/Data/AppliedSeqAn/Final_Project/results_without_ONT"
+results: "/storage/mi/tomw97/Data/AppliedSeqAn/Final_Project/results_ONT"
 
 # maximum number of threads
 # Note: some rules have an upper bound for their thread usage
@@ -58,7 +55,7 @@ skip:
   # Preprocessing
   trimming_Illumina: False
   trimming_ONT: False
-  decontamination: True
+  decontamination: False
   coverage_normalization: False
   # Quality Control
   fastQC: False      # Illumina QC
